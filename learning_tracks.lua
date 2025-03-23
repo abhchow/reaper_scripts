@@ -196,6 +196,8 @@ path = reaper.GetProjectPath()
 
 bottom_track = reaper.GetTrack(0,n-1)
 retval, bottom_track_name = reaper.GetTrackName(bottom_track)
+second_bottom_track = reaper.GetTrack(0,n-2)
+retval, second_bottom_track_name = reaper.GetTrackName(second_bottom_track)
 
 
 if bottom_track_name == "Metronome" or bottom_track_name == "Click" then
@@ -206,7 +208,9 @@ if bottom_track_name == "Metronome" or bottom_track_name == "Click" then
   reaper.SetMediaTrackInfo_Value(bottom_track, "D_PAN", 0);
   reaper.SetMediaTrackInfo_Value(bottom_track, "D_VOL", 1);
 
-  rhythm_learning_tracks(n-1, project_name, path)
+  if second_bottom_track_name == "VP" then
+    rhythm_learning_tracks(n-1, project_name, path)
+  end
   panned_learning_tracks(n-1, project_name, path)
   full_mix_learning_track(n-1, project_name, path, pans)
   part_missing_learning_tracks(n-1, project_name, path, pans)
@@ -214,8 +218,10 @@ else
   top_track = reaper.GetTrack(0,0)
   retval, top_track_name = reaper.GetTrackName(top_track)
   pans = get_pans(n-1, top_track_name)
-  
-  rhythm_learning_tracks(n, project_name, path)
+
+  if second_bottom_track_name == "VP" then
+    rhythm_learning_tracks(n, project_name, path)
+  end
   panned_learning_tracks(n, project_name, path)
   full_mix_learning_track(n, project_name, path, pans)
   part_missing_learning_tracks(n, project_name, path, pans)
