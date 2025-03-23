@@ -231,4 +231,8 @@ reset(n)
 
 -- TODO: Set pans function for convenience
 -- TODO: Restore function (putting volume and pan back where they were)
+--   TODO: Get original state function (store volume and pan values before running the script)
 -- TODO: Build a GUI to turn this into a rehearsal tool
+-- TODO: Parameterise hard panning so that you can choose left or right
+-- TODO: Options to select a custom panning arrangement for full mix and part missing tracks
+-- TODO: Options to select custom combinations of different parts present, not just Bass and VP
