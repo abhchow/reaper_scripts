@@ -22,7 +22,9 @@ I have further improvements to this script planned, but I may or may not get to 
 - Options to select custom combinations of different parts present, not just Bass and VP
 
 Here is an example of the final products after exporting:
+
 ![image](export_example.png)
 
 Here is an example of how I set up my projects to use the script:
+
 ![image](project_example.png)
