@@ -8,6 +8,12 @@ Currently I only have one script which is designed to make custom configurations
 - Rhythm only track (Bass and Vocal Percussion) for arrangements that have a VP part
 - Rhythm panned part, like the other panned tracks, except that both Bass and VP are panned hard left
 
+Importantly, this script was written for _my own_ convenience and contains a number of _hardcoded shortcuts_ - in other words, it is only designed to work under certain circumstances:
+- If you wish to include a metronome, it must be the _last_ track, and named either "Click" or "Metronome"
+- The panning arrangements are only defined for 4, 5, or 6 parts
+- - There are separate panning arrangements for SATB and Barbershop parts. If you wish to use the Barbershop panning pattern, name your first track "Tenor"
+- Exporting rhythm learning tracks assume that the Bass and VP are the last two tracks (excluding metronome)
+
 I have further improvements to this script planned, but I may or may not get to them. Those include:
 - A GUI for ease of use
 - Options to choose panning hard left or hard right
