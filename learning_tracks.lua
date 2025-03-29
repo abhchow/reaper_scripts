@@ -137,7 +137,7 @@ function rhythm_learning_tracks(n, project_name, path)
 end
 
 
-function get_pans(n, top_track_name)
+function get_pans(n, top_track_name, vp)
   -- Full mix
     -- Pan in a way that makes sure adjacent parts are separate (except for barbershop)
     -- For 6 part: Alto, Bass, Tenor/VP, Sop, Bari
@@ -149,14 +149,21 @@ function get_pans(n, top_track_name)
     reaper.ShowConsoleMsg("Panning arrangement: 6 part SATBB+VP\n\n")
     pans = {0.5, -1, 0, 1, -0.5, 0}
   elseif n == 5 then
-    reaper.ShowConsoleMsg("Panning arrangement: 5 part SATB+VP\n\n")
-    pans = {0.5, -1, 1, -0.5, 0}
-  elseif top_track_name == "Tenor" then --barbershop
-    reaper.ShowConsoleMsg("Panning arrangement: 4 part barbershop\n\n")
-    pans = {1, 1/3, -1, -1/3}
+    if vp then
+      reaper.ShowConsoleMsg("Panning arrangement: 5 part SATB+VP\n\n")
+      pans = {0.5, -1, 1, -0.5, 0}
+    else
+      reaper.ShowConsoleMsg("Panning arrangement: 5 part SATBB\n\n")
+      pans = {0.5, -1, 0, 1, -0.5}
+    end
   elseif n == 4 then
-    reaper.ShowConsoleMsg("Panning arrangement: 4 part SATB\n\n")
-    pans = {1/3, -1, 1, -1/3} 
+    if top_track_name == "Tenor" then --barbershop
+      reaper.ShowConsoleMsg("Panning arrangement: 4 part barbershop\n\n")
+      pans = {1, 1/3, -1, -1/3}
+    else
+      reaper.ShowConsoleMsg("Panning arrangement: 4 part SATB\n\n")
+      pans = {1/3, -1, 1, -1/3} 
+    end
   else
     for i = 1, n do
       pans[i] = 0
@@ -192,12 +199,12 @@ function export_track(export_file_name, path)
 end
 
 
-function export_all(n, project_name, path, pans, second_bottom_track, export_parts_only)
+function export_all(n, project_name, path, second_bottom_track, export_parts_only, vp)
   top_track = reaper.GetTrack(0,0)
   retval, top_track_name = reaper.GetTrackName(top_track)
-  pans = get_pans(n, top_track_name)
+  pans = get_pans(n, top_track_name, vp)
 
-  if second_bottom_track_name == "VP" then
+  if vp then
     rhythm_learning_tracks(n, project_name, path)
   end
   panned_learning_tracks(n, project_name, path)
@@ -221,11 +228,17 @@ second_bottom_track = reaper.GetTrack(0,n-2)
 retval, second_bottom_track_name = reaper.GetTrackName(second_bottom_track)
 
 if bottom_track_name == "Metronome" or bottom_track_name == "Click" then
+  if second_bottom_track_name == "VP" then
+    vp = true
+  end
   reaper.SetMediaTrackInfo_Value(bottom_track, "D_PAN", 0);
   --reaper.SetMediaTrackInfo_Value(bottom_track, "D_VOL", 1);
-  export_all(n-1, project_name, path, pans, second_bottom_track, export_parts_only)
+  export_all(n-1, project_name, path, second_bottom_track, export_parts_only, vp)
 else
-  export_all(n, project_name, path, pans, second_bottom_track, export_parts_only)
+  if bottom_track_name == "VP" then
+    vp = true
+  end
+  export_all(n, project_name, path, second_bottom_track, export_parts_only, vp)
 end
 
 reset(n)
