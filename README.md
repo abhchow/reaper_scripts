@@ -19,11 +19,11 @@ Importantly, this script was written for _my own_ convenience and contains a num
 
 Here is an example of the final products after exporting:
 
-![image](export_example.png)
+![image](readme_examples/export_example.png)
 
 Here is an example of how I set up my projects to use the script:
 
-![image](project_example.png)
+![image](readme_examples/project_example.png)
 
 
 ## Future Works
