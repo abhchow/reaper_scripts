@@ -21,6 +21,7 @@ function panned_learning_tracks(n, project_name, path)
     export_file_name = "\\" .. project_name .. " - " .. track_name .. " Panned.mp3"
     export_track(export_file_name, path)
   end
+  reaper.ShowConsoleMsg("\n")
 end
 
 
@@ -33,6 +34,7 @@ function full_mix_learning_track(n, project_name, path, pans)
   
   export_file_name = "\\" .. project_name .. " - Full Mix.mp3"
   export_track(export_file_name, path)
+  reaper.ShowConsoleMsg("\n")
 end
 
 
@@ -60,6 +62,7 @@ function part_missing_learning_tracks(n, project_name, path, pans)
     export_file_name = "\\" .. project_name .. " - " .. track_name .. " Missing.mp3"
     export_track(export_file_name, path)
   end
+  reaper.ShowConsoleMsg("\n")
 end
 
 
@@ -86,6 +89,7 @@ function parts_only(n, project_name, path)
     export_file_name = "\\" .. project_name .. " - " .. track_name .. ".mp3"
     export_track(export_file_name, path)
   end
+  reaper.ShowConsoleMsg("\n")
 end
 
 
@@ -134,6 +138,7 @@ function rhythm_learning_tracks(n, project_name, path)
   
   export_file_name = "\\" .. project_name .. " - Rhythm Panned.mp3"
   export_track(export_file_name, path)
+  reaper.ShowConsoleMsg("\n")
 end
 
 
