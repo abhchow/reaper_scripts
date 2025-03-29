@@ -220,7 +220,7 @@ export_parts_only = true
 n = reaper.GetNumTracks()
 project_name_ext = reaper.GetProjectName()
 project_name = string.sub(project_name_ext, 0, string.len(project_name_ext) - 4) -- stripping .rpp file extension
-path = reaper.GetProjectPath() .. "\\exports"
+path = reaper.GetProjectPath() .. "\\Learning Track Exports"
 
 bottom_track = reaper.GetTrack(0,n-1)
 retval, bottom_track_name = reaper.GetTrackName(bottom_track)
