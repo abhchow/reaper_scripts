@@ -1,5 +1,22 @@
 dofile(reaper.GetResourcePath().."/UserPlugins/ultraschall_api.lua")
 
+
+function export_track(export_file_name, path)
+  retval = ultraschall.SetProject_RenderFilename(nil, path .. export_file_name)
+  render_cfg_string = ultraschall.CreateRenderCFG_MP3MaxQuality()
+  
+  retval, renderfilecount, MediaItemStateChunkArray, Filearray
+    = ultraschall.RenderProject(nil, path .. export_file_name, 0, -1, false, false, false, render_cfg_string, nil)
+    
+  if retval == 0 then
+    displayMessage = "Successfully exported " .. path .. export_file_name .. "\n"
+  else
+    displayMessage = "Failed to export " .. path .. export_file_name .. "\n"
+  end
+  reaper.ShowConsoleMsg(displayMessage)
+end
+
+
 -- Hard Stereo Parts
 function panned_learning_tracks(n, project_name, path)
   for i = 0, n-1, 1 do
@@ -19,18 +36,7 @@ function panned_learning_tracks(n, project_name, path)
     end
     
     export_file_name = "\\" .. project_name .. " - " .. track_name .. " Panned.mp3"
-    retval = ultraschall.SetProject_RenderFilename(nil, path .. export_file_name)
-    render_cfg_string = ultraschall.CreateRenderCFG_MP3MaxQuality()
-    
-    retval, renderfilecount, MediaItemStateChunkArray, Filearray
-      = ultraschall.RenderProject(nil, path .. export_file_name, 0, -1, false, false, false, render_cfg_string, nil)
-      
-    if retval == 0 then
-      displayMessage = "Successfully exported " .. path .. export_file_name .. "\n"
-    else
-      displayMessage = "Failed to export " .. path .. export_file_name .. "\n"
-    end
-    reaper.ShowConsoleMsg(displayMessage)
+    export_track(export_file_name, path)
   end
 end
 
@@ -44,16 +50,16 @@ function get_pans(n, top_track_name)
     -- For barbershop: Bari, Bass, Lead, Tenor
 
   if n == 6 then
-    reaper.ShowConsoleMsg("Panning arrangement: 6 part SATBB+VP")
+    reaper.ShowConsoleMsg("Panning arrangement: 6 part SATBB+VP\n\n")
     pans = {0.5, -1, 0, 1, -0.5, 0}
   elseif n == 5 then
-    reaper.ShowConsoleMsg("Panning arrangement: 5 part SATB+VP")
+    reaper.ShowConsoleMsg("Panning arrangement: 5 part SATB+VP\n\n")
     pans = {0.5, -1, 1, -0.5, 0}
   elseif top_track_name == "Tenor" then --barbershop
-    reaper.ShowConsoleMsg("Panning arrangement: 4 part barbershop")
+    reaper.ShowConsoleMsg("Panning arrangement: 4 part barbershop\n\n")
     pans = {1, 1/3, -1, -1/3}
   elseif n == 4 then
-    reaper.ShowConsoleMsg("Panning arrangement: 4 part SATB")
+    reaper.ShowConsoleMsg("Panning arrangement: 4 part SATB\n\n")
     pans = {1/3, -1, 1, -1/3} 
   else
     for i = 1, n do
@@ -73,18 +79,7 @@ function full_mix_learning_track(n, project_name, path, pans)
   end
   
   export_file_name = "\\" .. project_name .. " - Full Mix.mp3"
-  retval = ultraschall.SetProject_RenderFilename(nil, path .. export_file_name)
-  render_cfg_string = ultraschall.CreateRenderCFG_MP3MaxQuality()
-  
-  retval, renderfilecount, MediaItemStateChunkArray, Filearray
-    = ultraschall.RenderProject(nil, path .. export_file_name, 0, -1, false, false, false, render_cfg_string, nil)
-    
-  if retval == 0 then
-    displayMessage = "Successfully exported " .. path .. export_file_name .. "\n"
-  else
-    displayMessage = "Failed to export " .. path .. export_file_name .. "\n"
-  end
-  reaper.ShowConsoleMsg(displayMessage)
+  export_track(export_file_name, path)
 end
 
 
@@ -110,18 +105,7 @@ function part_missing_learning_tracks(n, project_name, path, pans)
     end
     
     export_file_name = "\\" .. project_name .. " - " .. track_name .. " Missing.mp3"
-    retval = ultraschall.SetProject_RenderFilename(nil, path .. export_file_name)
-    render_cfg_string = ultraschall.CreateRenderCFG_MP3MaxQuality()
-    
-    retval, renderfilecount, MediaItemStateChunkArray, Filearray
-      = ultraschall.RenderProject(nil, path .. export_file_name, 0, -1, false, false, false, render_cfg_string, nil)
-      
-    if retval == 0 then
-      displayMessage = "Successfully exported " .. path .. export_file_name .. "\n"
-    else
-      displayMessage = "Failed to export " .. path .. export_file_name .. "\n"
-    end
-    reaper.ShowConsoleMsg(displayMessage)
+    export_track(export_file_name, path)
   end
 end
 
@@ -147,18 +131,7 @@ function parts_only(n, project_name, path)
     end
     
     export_file_name = "\\" .. project_name .. " - " .. track_name .. ".mp3"
-    retval = ultraschall.SetProject_RenderFilename(nil, path .. export_file_name)
-    render_cfg_string = ultraschall.CreateRenderCFG_MP3MaxQuality()
-    
-    retval, renderfilecount, MediaItemStateChunkArray, Filearray
-      = ultraschall.RenderProject(nil, path .. export_file_name, 0, -1, false, false, false, render_cfg_string, nil)
-      
-    if retval == 0 then
-      displayMessage = "Successfully exported " .. path .. export_file_name .. "\n"
-    else
-      displayMessage = "Failed to export " .. path .. export_file_name .. "\n"
-    end
-    reaper.ShowConsoleMsg(displayMessage)
+    export_track(export_file_name, path)
   end
 end
 
@@ -207,19 +180,7 @@ function rhythm_learning_tracks(n, project_name, path)
   end
   
   export_file_name = "\\" .. project_name .. " - Rhythm Panned.mp3"
-  retval = ultraschall.SetProject_RenderFilename(nil, path .. export_file_name)
-  render_cfg_string = ultraschall.CreateRenderCFG_MP3MaxQuality()
-  
-  retval, renderfilecount, MediaItemStateChunkArray, Filearray
-    = ultraschall.RenderProject(nil, path .. export_file_name, 0, -1, false, false, false, render_cfg_string, nil)
-    
-  if retval == 0 then
-    displayMessage = "Successfully exported " .. path .. export_file_name .. "\n"
-  else
-    displayMessage = "Failed to export " .. path .. export_file_name .. "\n"
-  end
-  reaper.ShowConsoleMsg(displayMessage)
-
+  export_track(export_file_name, path)
 end
 
 
