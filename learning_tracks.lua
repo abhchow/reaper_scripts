@@ -222,7 +222,7 @@ retval, second_bottom_track_name = reaper.GetTrackName(second_bottom_track)
 
 if bottom_track_name == "Metronome" or bottom_track_name == "Click" then
   reaper.SetMediaTrackInfo_Value(bottom_track, "D_PAN", 0);
-  reaper.SetMediaTrackInfo_Value(bottom_track, "D_VOL", 1);
+  --reaper.SetMediaTrackInfo_Value(bottom_track, "D_VOL", 1);
   export_all(n-1, project_name, path, pans, second_bottom_track, export_parts_only)
 else
   export_all(n, project_name, path, pans, second_bottom_track, export_parts_only)
