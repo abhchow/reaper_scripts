@@ -251,6 +251,7 @@ end
 reset(n)
 
 
+-- TODO: Add optional numbers to the start of the file names
 -- TODO: Parameterise everything
   -- TODO: Parameterise volume for all tracks (make it so that you can drop the volume of all parts the same amount)
   -- TODO: Parameterise hard panning so that you can choose left or right
