@@ -10,20 +10,28 @@ Currently I only have one script which is designed to make custom configurations
 - Rhythm panned part, like the other panned tracks, except that both Bass and VP are panned hard left
 
 ## Usage
+### Installation
+First, follow the instructions for how to install the [Ultraschall API](https://mespotin.uber.space/Ultraschall/US_Api_Introduction_and_Concepts.html#:~:text=%5E%20How%20to%20install%20Ultraschall%20API)
+
+Then, download this entire repository. You can do that by clicking the green 'Code' button at the top, then clicking download zip. Unzip the file into your REAPER scripts folder. In Windows, you can find it at C:\Users\\(your username)\AppData\Roaming\REAPER\Scripts\ 
+
+### Creating your learning tracks
+Open up REAPER and create a new project. Import each stem as its own track, and name the tracks accordingly. _(Note: This program uses specific track names to identify certain parts. See further below.)_ You should have something that looks like this:
+
+![image](readme_examples/project_example.png)
+
+Then, click Actions at the top of your screen, and click Show Action List. Then, click Script: learning_tracks.lua and click Run. Now it will create all of the learning tracks for you. They will appear inside the folder your project is saved in, and you will see a final product that looks something like this:
+
+![image](readme_examples/export_example.png)
+
+### Usage Notes
 Importantly, this script was written for _my own_ convenience and contains a number of _hardcoded shortcuts_ - in other words, it is only designed to work under certain circumstances:
 - If you wish to include a metronome, it must be the _last_ track, and named either "Click" or "Metronome"
 - The panning arrangements are only defined for 4, 5, or 6 parts
   - There are separate panning arrangements for SATB and Barbershop parts. If you wish to use the Barbershop panning pattern, name your first track "Tenor"
+  - You must name any beatbox/vocal percussion parts "VP". Otherwise your VP will end up panned somewhere else.
 - Exporting rhythm learning tracks assumes that the Bass and VP are the last two tracks (excluding metronome)
 - You may need to edit the script yourself to enable or disable some features. 
-
-Here is an example of the final products after exporting:
-
-![image](readme_examples/export_example.png)
-
-Here is an example of how I set up my projects to use the script:
-
-![image](readme_examples/project_example.png)
 
 
 ## Future Works

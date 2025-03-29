@@ -255,6 +255,9 @@ reset(n)
 -- TODO: Parameterise everything
   -- TODO: Parameterise volume for all tracks (make it so that you can drop the volume of all parts the same amount)
   -- TODO: Parameterise hard panning so that you can choose left or right
+-- TODO: Map a sequence of integers to panning
+  -- ie, 3, 1, 2, 4, 5 => 0, -1, -0.5, 0.5, 1
+  -- extension: add a width parameter such that maximum width is 1 (furthest parts are hard panned) and minimum is 0 (all parts are centred)
 -- TODO: Set pans function for convenience
 -- TODO: Restore function (putting volume and pan back where they were)
   -- TODO: Get original state function (store volume and pan values before running the script)
