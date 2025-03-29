@@ -209,15 +209,16 @@ function export_all(n, project_name, path, second_bottom_track, export_parts_onl
   retval, top_track_name = reaper.GetTrackName(top_track)
   pans = get_pans(n, top_track_name, vp)
 
-  if vp then
-    rhythm_learning_tracks(n, project_name, path)
-  end
-  panned_learning_tracks(n, project_name, path)
-  full_mix_learning_track(n, project_name, path, pans)
-  part_missing_learning_tracks(n, project_name, path, pans)
   if export_parts_only then
     parts_only(n, project_name, path)
   end
+  panned_learning_tracks(n, project_name, path)
+  part_missing_learning_tracks(n, project_name, path, pans)
+  if vp then
+    rhythm_learning_tracks(n, project_name, path)
+  end
+  full_mix_learning_track(n, project_name, path, pans)
+
 end
 
 
@@ -231,6 +232,7 @@ bottom_track = reaper.GetTrack(0,n-1)
 retval, bottom_track_name = reaper.GetTrackName(bottom_track)
 second_bottom_track = reaper.GetTrack(0,n-2)
 retval, second_bottom_track_name = reaper.GetTrackName(second_bottom_track)
+vp = false
 
 if bottom_track_name == "Metronome" or bottom_track_name == "Click" then
   if second_bottom_track_name == "VP" then
@@ -255,6 +257,7 @@ reset(n)
 -- TODO: Set pans function for convenience
 -- TODO: Restore function (putting volume and pan back where they were)
   -- TODO: Get original state function (store volume and pan values before running the script)
+-- TODO: Detect clipping in export, delete the clipped track and re-export at a lower volume
 -- TODO: Build a GUI to turn this into a rehearsal tool
   -- TODO: Options to select a custom panning arrangement for full mix and part missing tracks
   -- TODO: Options to select custom combinations of different parts present, not just Bass and VP
