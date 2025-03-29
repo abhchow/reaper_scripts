@@ -13,16 +13,21 @@ Currently I only have one script which is designed to make custom configurations
 ### Installation
 First, follow the instructions for how to install the [Ultraschall API](https://mespotin.uber.space/Ultraschall/US_Api_Introduction_and_Concepts.html#:~:text=%5E%20How%20to%20install%20Ultraschall%20API)
 
-Then, download this entire repository. You can do that by clicking the green 'Code' button at the top, then clicking download zip. Unzip the file into your REAPER scripts folder. In Windows, you can find it at C:\Users\\(your username)\AppData\Roaming\REAPER\Scripts\ 
+Then, download this entire repository. You can do that by clicking the green 'Code' button at the top, then clicking download zip. Unzip the file into your REAPER scripts folder. In Windows, you can find it at `C:\Users\\(your username)\AppData\Roaming\REAPER\Scripts\`
+
+### Using Templates
+There are templates available with everything set up already. These are _optional_ but recommended. All you need to do is copy the contents of the `Learning Track Templates` folder into `C:\Users\\(your username)\AppData\Roaming\REAPER\ProjectTemplates\`. Then you can create a new project in REAPER by clicking File at the top of your screen, then Project Templates, and selecting the relevant one.
 
 ### Creating your learning tracks
-Open up REAPER and create a new project. Import each stem as its own track, and name the tracks accordingly. _(Note: This program uses specific track names to identify certain parts. See further below.)_ You should have something that looks like this:
+Open up REAPER and create a new project. Import each stem as its own track, and name the tracks accordingly. _(Note: This program uses specific track names to identify certain parts. See [Usage Notes](https://github.com/abhchow/reaper_scripts?tab=readme-ov-file#usage-notes))_ You should have something that looks like this:
 
 ![image](readme_examples/project_example.png)
 
 Then, click Actions at the top of your screen, and click Show Action List. Then, click Script: learning_tracks.lua and click Run. Now it will create all of the learning tracks for you. They will appear inside the folder your project is saved in, and you will see a final product that looks something like this:
 
 ![image](readme_examples/export_example.png)
+
+
 
 ### Usage Notes
 Importantly, this script was written for _my own_ convenience and contains a number of _hardcoded shortcuts_ - in other words, it is only designed to work under certain circumstances:
