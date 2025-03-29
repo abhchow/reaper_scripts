@@ -1,23 +1,6 @@
 dofile(reaper.GetResourcePath().."/UserPlugins/ultraschall_api.lua")
 
 
-function export_track(export_file_name, path)
-  retval = ultraschall.SetProject_RenderFilename(nil, path .. export_file_name)
-  render_cfg_string = ultraschall.CreateRenderCFG_MP3MaxQuality()
-  
-  retval, renderfilecount, MediaItemStateChunkArray, Filearray
-    = ultraschall.RenderProject(nil, path .. export_file_name, 0, -1, false, false, false, render_cfg_string, nil)
-    
-  if retval == 0 then
-    displayMessage = "Successfully exported " .. path .. export_file_name .. "\n"
-  else
-    displayMessage = "Failed to export " .. path .. export_file_name .. "\n"
-  end
-  reaper.ShowConsoleMsg(displayMessage)
-end
-
-
--- Hard Stereo Parts
 function panned_learning_tracks(n, project_name, path)
   for i = 0, n-1, 1 do
     track_main = reaper.GetTrack(0, i)
@@ -38,36 +21,6 @@ function panned_learning_tracks(n, project_name, path)
     export_file_name = "\\" .. project_name .. " - " .. track_name .. " Panned.mp3"
     export_track(export_file_name, path)
   end
-end
-
-
-function get_pans(n, top_track_name)
-  -- Full mix
-    -- Pan in a way that makes sure adjacent parts are separate (except for barbershop)
-    -- For 6 part: Alto, Bass, Tenor/VP, Sop, Bari
-    -- For 5 part: Alto, Bass, VP, Sop, Tenor
-    -- For 4 part: Alto, Bass, Sop, Tenor
-    -- For barbershop: Bari, Bass, Lead, Tenor
-
-  if n == 6 then
-    reaper.ShowConsoleMsg("Panning arrangement: 6 part SATBB+VP\n\n")
-    pans = {0.5, -1, 0, 1, -0.5, 0}
-  elseif n == 5 then
-    reaper.ShowConsoleMsg("Panning arrangement: 5 part SATB+VP\n\n")
-    pans = {0.5, -1, 1, -0.5, 0}
-  elseif top_track_name == "Tenor" then --barbershop
-    reaper.ShowConsoleMsg("Panning arrangement: 4 part barbershop\n\n")
-    pans = {1, 1/3, -1, -1/3}
-  elseif n == 4 then
-    reaper.ShowConsoleMsg("Panning arrangement: 4 part SATB\n\n")
-    pans = {1/3, -1, 1, -1/3} 
-  else
-    for i = 1, n do
-      pans[i] = 0
-    end
-  end
-
-  return pans
 end
 
 
@@ -184,6 +137,36 @@ function rhythm_learning_tracks(n, project_name, path)
 end
 
 
+function get_pans(n, top_track_name)
+  -- Full mix
+    -- Pan in a way that makes sure adjacent parts are separate (except for barbershop)
+    -- For 6 part: Alto, Bass, Tenor/VP, Sop, Bari
+    -- For 5 part: Alto, Bass, VP, Sop, Tenor
+    -- For 4 part: Alto, Bass, Sop, Tenor
+    -- For barbershop: Bari, Bass, Lead, Tenor
+
+  if n == 6 then
+    reaper.ShowConsoleMsg("Panning arrangement: 6 part SATBB+VP\n\n")
+    pans = {0.5, -1, 0, 1, -0.5, 0}
+  elseif n == 5 then
+    reaper.ShowConsoleMsg("Panning arrangement: 5 part SATB+VP\n\n")
+    pans = {0.5, -1, 1, -0.5, 0}
+  elseif top_track_name == "Tenor" then --barbershop
+    reaper.ShowConsoleMsg("Panning arrangement: 4 part barbershop\n\n")
+    pans = {1, 1/3, -1, -1/3}
+  elseif n == 4 then
+    reaper.ShowConsoleMsg("Panning arrangement: 4 part SATB\n\n")
+    pans = {1/3, -1, 1, -1/3} 
+  else
+    for i = 1, n do
+      pans[i] = 0
+    end
+  end
+
+  return pans
+end
+
+
 function reset(n)
   for i = 0, n-1, 1 do
     track = reaper.GetTrack(0, i)
@@ -193,7 +176,27 @@ function reset(n)
 end
 
 
+function export_track(export_file_name, path)
+  retval = ultraschall.SetProject_RenderFilename(nil, path .. export_file_name)
+  render_cfg_string = ultraschall.CreateRenderCFG_MP3MaxQuality()
+  
+  retval, renderfilecount, MediaItemStateChunkArray, Filearray
+    = ultraschall.RenderProject(nil, path .. export_file_name, 0, -1, false, false, false, render_cfg_string, nil)
+    
+  if retval == 0 then
+    displayMessage = "Successfully exported " .. path .. export_file_name .. "\n"
+  else
+    displayMessage = "Failed to export " .. path .. export_file_name .. "\n"
+  end
+  reaper.ShowConsoleMsg(displayMessage)
+end
+
+
 function export_all(n, project_name, path, pans, second_bottom_track, export_parts_only)
+  top_track = reaper.GetTrack(0,0)
+  retval, top_track_name = reaper.GetTrackName(top_track)
+  pans = get_pans(n, top_track_name)
+
   if second_bottom_track_name == "VP" then
     rhythm_learning_tracks(n, project_name, path)
   end
@@ -205,34 +208,23 @@ function export_all(n, project_name, path, pans, second_bottom_track, export_par
   end
 end
 
+
 export_parts_only = true
 n = reaper.GetNumTracks()
 project_name_ext = reaper.GetProjectName()
-project_name = string.sub(project_name_ext, 0, string.len(project_name_ext) - 4) -- stripping file extension
+project_name = string.sub(project_name_ext, 0, string.len(project_name_ext) - 4) -- stripping .rpp file extension
 path = reaper.GetProjectPath() .. "\\exports"
--- full_path = path .. "\\" .. project_name_ext
-
 
 bottom_track = reaper.GetTrack(0,n-1)
 retval, bottom_track_name = reaper.GetTrackName(bottom_track)
 second_bottom_track = reaper.GetTrack(0,n-2)
 retval, second_bottom_track_name = reaper.GetTrackName(second_bottom_track)
 
-
-
-
 if bottom_track_name == "Metronome" or bottom_track_name == "Click" then
-  top_track = reaper.GetTrack(0,0)
-  retval, top_track_name = reaper.GetTrackName(top_track)
-  pans = get_pans(n-1, top_track_name)
-  
   reaper.SetMediaTrackInfo_Value(bottom_track, "D_PAN", 0);
   reaper.SetMediaTrackInfo_Value(bottom_track, "D_VOL", 1);
   export_all(n-1, project_name, path, pans, second_bottom_track, export_parts_only)
 else
-  top_track = reaper.GetTrack(0,0)
-  retval, top_track_name = reaper.GetTrackName(top_track)
-  pans = get_pans(n, top_track_name)
   export_all(n, project_name, path, pans, second_bottom_track, export_parts_only)
 end
 
