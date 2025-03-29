@@ -228,10 +228,8 @@ else
   export_all(n, project_name, path, pans, second_bottom_track, export_parts_only)
 end
 
-
-
-
 reset(n)
+
 
 -- TODO: Parameterise everything
   -- TODO: Parameterise volume for all tracks (make it so that you can drop the volume of all parts the same amount)
