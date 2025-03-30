@@ -1,5 +1,31 @@
 dofile(reaper.GetResourcePath().."/UserPlugins/ultraschall_api.lua")
 
+function parts_only(n, project_name, path, volume, original_volumes)
+  for i = 0, n-1, 1 do
+    track = reaper.GetTrack(0, i)
+    reaper.SetMediaTrackInfo_Value(track, "D_PAN", 0);
+  end
+
+  for i = 0, n-1, 1 do
+    track_main = reaper.GetTrack(0, i)
+    retval, track_name = reaper.GetTrackName(track_main)
+    
+    for j = 0, n-1, 1 do
+      track = reaper.GetTrack(0, j)
+      
+      if i == j then 
+        reaper.SetMediaTrackInfo_Value(track, "D_VOL", volume*original_volumes[j+1]);
+      else
+        reaper.SetMediaTrackInfo_Value(track, "D_VOL", 0);
+      end
+    end
+    
+    export_file_name = "\\" .. project_name .. " - " .. track_name .. ".mp3"
+    export_track(export_file_name, path)
+  end
+  reaper.ShowConsoleMsg("\n")
+end
+
 
 function panned_learning_tracks(n, project_name, path, part_position, volume_diff, original_volumes)
   -- part position should be either -1 (left) or 1 (right)
@@ -27,19 +53,6 @@ function panned_learning_tracks(n, project_name, path, part_position, volume_dif
 end
 
 
-function full_mix_learning_track(n, project_name, path, pans, original_volumes)
-  for i = 0, n-1, 1 do
-    track = reaper.GetTrack(0, i)
-    reaper.SetMediaTrackInfo_Value(track, "D_VOL", original_volumes[i+1]);
-    reaper.SetMediaTrackInfo_Value(track, "D_PAN", pans[i+1]);
-  end
-  
-  export_file_name = "\\" .. project_name .. " - Full Mix.mp3"
-  export_track(export_file_name, path)
-  reaper.ShowConsoleMsg("\n")
-end
-
-
 function part_missing_learning_tracks(n, project_name, path, pans, original_volumes)
   for i = 0, n-1, 1 do
     track = reaper.GetTrack(0, i)
@@ -62,33 +75,6 @@ function part_missing_learning_tracks(n, project_name, path, pans, original_volu
     end
     
     export_file_name = "\\" .. project_name .. " - " .. track_name .. " Missing.mp3"
-    export_track(export_file_name, path)
-  end
-  reaper.ShowConsoleMsg("\n")
-end
-
-
-function parts_only(n, project_name, path, volume, original_volumes)
-  for i = 0, n-1, 1 do
-    track = reaper.GetTrack(0, i)
-    reaper.SetMediaTrackInfo_Value(track, "D_PAN", 0);
-  end
-
-  for i = 0, n-1, 1 do
-    track_main = reaper.GetTrack(0, i)
-    retval, track_name = reaper.GetTrackName(track_main)
-    
-    for j = 0, n-1, 1 do
-      track = reaper.GetTrack(0, j)
-      
-      if i == j then 
-        reaper.SetMediaTrackInfo_Value(track, "D_VOL", volume*original_volumes[j+1]);
-      else
-        reaper.SetMediaTrackInfo_Value(track, "D_VOL", 0);
-      end
-    end
-    
-    export_file_name = "\\" .. project_name .. " - " .. track_name .. ".mp3"
     export_track(export_file_name, path)
   end
   reaper.ShowConsoleMsg("\n")
@@ -139,6 +125,19 @@ function rhythm_learning_tracks(n, project_name, path, original_volumes)
   end
   
   export_file_name = "\\" .. project_name .. " - Rhythm Panned.mp3"
+  export_track(export_file_name, path)
+  reaper.ShowConsoleMsg("\n")
+end
+
+
+function full_mix_learning_track(n, project_name, path, pans, original_volumes)
+  for i = 0, n-1, 1 do
+    track = reaper.GetTrack(0, i)
+    reaper.SetMediaTrackInfo_Value(track, "D_VOL", original_volumes[i+1]);
+    reaper.SetMediaTrackInfo_Value(track, "D_PAN", pans[i+1]);
+  end
+  
+  export_file_name = "\\" .. project_name .. " - Full Mix.mp3"
   export_track(export_file_name, path)
   reaper.ShowConsoleMsg("\n")
 end
