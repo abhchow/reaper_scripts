@@ -142,32 +142,33 @@ function rhythm_learning_tracks(n, project_name, path)
 end
 
 
-function get_pans(n, top_track_name, vp)
+function get_positions(n, top_track_name, vp)
   -- Full mix
     -- Pan in a way that makes sure adjacent parts are separate (except for barbershop)
-    -- For 6 part: Alto, Bass, Tenor/VP, Sop, Bari
-    -- For 5 part: Alto, Bass, VP, Sop, Tenor
-    -- For 4 part: Alto, Bass, Sop, Tenor
+    -- For 6 part SATBB+VP: Alto, Bass, Tenor/VP, Sop, Bari
+    -- For 5 part SATB+VP: Alto, Bass, VP, Sop, Tenor
+    -- For 5 part SATBB: Alto, Bass, Tenor, Sop, Bari
+    -- For 4 part SATB: Alto, Bass, Sop, Tenor
     -- For barbershop: Bari, Bass, Lead, Tenor
 
   if n == 6 then
     reaper.ShowConsoleMsg("Panning arrangement: 6 part SATBB+VP\n\n")
-    pans = {0.5, -1, 0, 1, -0.5, 0}
+    pans = {4,1,3,5,2,3}
   elseif n == 5 then
     if vp then
       reaper.ShowConsoleMsg("Panning arrangement: 5 part SATB+VP\n\n")
-      pans = {0.5, -1, 1, -0.5, 0}
+      pans = {4,1,5,2,3}
     else
       reaper.ShowConsoleMsg("Panning arrangement: 5 part SATBB\n\n")
-      pans = {0.5, -1, 0, 1, -0.5}
+      pans = {4,1,3,5,2}
     end
   elseif n == 4 then
     if top_track_name == "Tenor" then --barbershop
       reaper.ShowConsoleMsg("Panning arrangement: 4 part barbershop\n\n")
-      pans = {1, 1/3, -1, -1/3}
+      pans = {4,3,1,2}
     else
       reaper.ShowConsoleMsg("Panning arrangement: 4 part SATB\n\n")
-      pans = {1/3, -1, 1, -1/3} 
+      pans = {3,1,4,2}
     end
   else
     for i = 1, n do
@@ -176,6 +177,23 @@ function get_pans(n, top_track_name, vp)
   end
 
   return pans
+end
+
+
+function positions_to_pans(positions, width)
+  -- width is a minimum of 0 (mono) and a maximum of 1 (furthest parts are hard panned)
+
+  pans = {}
+
+  positions_max = math.max(table.unpack(positions))
+  positions_min = math.min(table.unpack(positions))
+  diff = positions_max - positions_min
+
+  for i = 1, #positions do
+    pans[i] = ((positions[i] - positions_min) / diff * 2 - 1) * width
+  end
+
+  return pans  
 end
 
 
@@ -207,7 +225,8 @@ end
 function export_all(n, project_name, path, second_bottom_track, export_parts_only, vp)
   top_track = reaper.GetTrack(0,0)
   retval, top_track_name = reaper.GetTrackName(top_track)
-  pans = get_pans(n, top_track_name, vp)
+  positions = get_positions(n, top_track_name, vp, override)
+  pans = positions_to_pans(positions, 0.6)
 
   if export_parts_only then
     parts_only(n, project_name, path)
@@ -251,15 +270,12 @@ function main()
   reset(n)
 end
 
--- main()
+main()
 
 -- TODO: Add optional numbers to the start of the file names
 -- TODO: Parameterise everything
   -- TODO: Parameterise volume for all tracks (make it so that you can drop the volume of all parts the same amount)
   -- TODO: Parameterise hard panning so that you can choose left or right
--- TODO: Map a sequence of integers to panning
-  -- ie, 3, 1, 2, 4, 5 => 0, -1, -0.5, 0.5, 1
-  -- extension: add a width parameter such that maximum width is 1 (furthest parts are hard panned) and minimum is 0 (all parts are centred)
 -- TODO: Set pans function for convenience
 -- TODO: Restore function (putting volume and pan back where they were)
   -- TODO: Get original state function (store volume and pan values before running the script)
