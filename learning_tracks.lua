@@ -225,7 +225,7 @@ end
 function export_all(n, project_name, path, second_bottom_track, export_parts_only, vp)
   top_track = reaper.GetTrack(0,0)
   retval, top_track_name = reaper.GetTrackName(top_track)
-  positions = get_positions(n, top_track_name, vp, override)
+  positions = get_positions(n, top_track_name, vp)
   pans = positions_to_pans(positions, 0.6)
 
   if export_parts_only then

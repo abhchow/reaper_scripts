@@ -35,6 +35,8 @@ Importantly, this script was written for _my own_ convenience and contains a num
 - The panning arrangements are only defined for 4, 5, or 6 parts
   - There are separate panning arrangements for SATB and Barbershop parts. If you wish to use the Barbershop panning pattern, name your first track "Tenor"
   - You must name any beatbox/vocal percussion parts "VP". Otherwise your VP will end up panned somewhere else.
+  - The panning arrangements can be customised by editing the script and changing the sequence of numbers in the get_positions function. The smaller the number the further left, the larger the number the further right. You can put in any numbers and the script will adjust automatically for you.
+    - You can also adjust the width in the positions_to_pans function. By default the width is 0.6.
 - Exporting rhythm learning tracks assumes that the Bass and VP are the last two tracks (excluding metronome)
 - You may need to edit the script yourself to enable or disable some features. 
 
