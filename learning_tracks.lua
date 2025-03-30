@@ -68,7 +68,7 @@ function part_missing_learning_tracks(n, project_name, path, pans)
 end
 
 
-function parts_only(n, project_name, path)
+function parts_only(n, project_name, path, volume)
   for i = 0, n-1, 1 do
     track = reaper.GetTrack(0, i)
     reaper.SetMediaTrackInfo_Value(track, "D_PAN", 0);
@@ -82,7 +82,7 @@ function parts_only(n, project_name, path)
       track = reaper.GetTrack(0, j)
       
       if i == j then 
-        reaper.SetMediaTrackInfo_Value(track, "D_VOL", 1);
+        reaper.SetMediaTrackInfo_Value(track, "D_VOL", volume);
       else
         reaper.SetMediaTrackInfo_Value(track, "D_VOL", 0);
       end
@@ -231,7 +231,7 @@ function export_all(n, project_name, path, second_bottom_track, export_parts_onl
   pans = positions_to_pans(positions, 0.6) -- overwrite this to customise
 
   if export_parts_only then
-    parts_only(n, project_name, path)
+    parts_only(n, project_name, path, 2)
   end
   panned_learning_tracks(n, project_name, path, hard_pan_position, hard_pan_volume)
   part_missing_learning_tracks(n, project_name, path, pans)
@@ -255,7 +255,7 @@ function main()
   retval, second_bottom_track_name = reaper.GetTrackName(second_bottom_track)
   vp = false
   hard_pan_position = -1
-  hard_pan_volume = 3
+  hard_pan_volume = 2
 
   if bottom_track_name == "Metronome" or bottom_track_name == "Click" then
     if second_bottom_track_name == "VP" then
