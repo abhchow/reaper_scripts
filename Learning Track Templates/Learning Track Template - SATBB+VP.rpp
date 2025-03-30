@@ -1,4 +1,4 @@
-<REAPER_PROJECT 0.1 "7.34/win64" 1743241573
+<REAPER_PROJECT 0.1 "7.34/win64" 1743343809
   <NOTES 0 2
   >
   RIPPLE 0
@@ -13,12 +13,12 @@
   PANLAW 1
   PROJOFFS 0 0 0
   MAXPROJLEN 0 0
-  GRID 3455 8 1 8 1 0 0 0
+  GRID 3199 8 1 8 1 0 0 0
   TIMEMODE 1 5 -1 30 0 0 -1
   VIDEO_CONFIG 0 0 65792
   PANMODE 3
   PANLAWFLAGS 3
-  CURSOR 2.94072312459711
+  CURSOR 0
   ZOOM 116.29792588748232 0 0
   VZOOMEX 6 0
   USE_REC_CFG 0
@@ -242,7 +242,7 @@
     BUSCOMP 0 0 0 0 0
     SHOWINMIX 1 0.6667 0.5 1 0.5 0 0 0
     FIXEDLANES 9 0 0 0 0
-    SEL 1
+    SEL 0
     REC 0 0 1 0 0 0 0 0
     VU 2
     TRACKHEIGHT 0 0 0 0 0 0 0
@@ -254,7 +254,7 @@
     MIDIOUT -1
     MAINSEND 1 0
   >
-  <TRACK {5EDF3A4B-98A7-4B54-AA39-DFFD3E034512}
+  <TRACK {E547E430-89CC-4592-8151-24AE60405F50}
     NAME Metronome
     PEAKCOL 16576
     BEAT -1
@@ -268,77 +268,97 @@
     BUSCOMP 0 0 0 0 0
     SHOWINMIX 1 0.6667 0.5 1 0.5 0 0 0
     FIXEDLANES 9 0 0 0 0
-    SEL 0
+    SEL 1
     REC 0 0 1 0 0 0 0 0
     VU 2
     TRACKHEIGHT 0 0 0 0 0 0 0
     INQ 0 0 0 0.5 100 0 0 100
     NCHAN 2
     FX 1
-    TRACKID {5EDF3A4B-98A7-4B54-AA39-DFFD3E034512}
+    TRACKID {E547E430-89CC-4592-8151-24AE60405F50}
     PERF 0
     MIDIOUT -1
     MAINSEND 1 0
+    <FXCHAIN
+      WNDRECT 253 261 832 776
+      SHOW 0
+      LASTSEL 0
+      DOCKED 0
+      BYPASS 0 0 0
+      <VST "VSTi: ReaSynth (Cockos)" reasynth.dll 0 "" 1919251321<5653547265737972656173796E746800> ""
+        eXNlcu9e7f4AAAAAAgAAAAEAAAAAAAAAAgAAAAAAAABEAAAAAAAAAAAAEAA=
+        776t3g3wrd6mm8Q7F7fROgRWzj4AAAAAAAAAAMybgD7pZ4g9AAAAAAAAAD8AAIA/AACAPwAAAD8AAAAAAAAAAAAAAAA=
+        AAAQAAAA
+      >
+      FLOATPOS 0 0 0 0
+      FXID {046E481E-FDA3-415D-B712-E2EA5ECE4617}
+      WAK 0 0
+    >
     <ITEM
       POSITION 0
       SNAPOFFS 0
-      LENGTH 7.8
+      LENGTH 2
       LOOP 1
       ALLTAKES 0
       FADEIN 1 0 0 1 0 0 0
-      FADEOUT 1 0.01 0 1 0 0 0
+      FADEOUT 1 0 0 1 0 0 0
       MUTE 0 0
       SEL 0
-      IGUID {A6049553-CA8A-486B-B8E9-8AAB4AEF3609}
-      IID 1
+      IGUID {A6555C6F-2455-4F1F-943E-518C7FEB0D7E}
+      IID 36
+      NAME 01-Tenor-MIDI
+      VOLPAN 1 0 1 -1
+      SOFFS 0 0
+      PLAYRATE 1 1 0 -1 0 0.0025
+      CHANMODE 0
+      GUID {7FF98565-B4E1-4BF5-B222-CF9FAF4F2C42}
+      <SOURCE MIDI
+        HASDATA 1 960 QN
+        CCINTERP 32
+        POOLEDEVTS {5889F714-B18E-4D96-B834-D79EB53C9CB5}
+        e 0 90 3c 60
+        e 3840 80 3c 00
+        E 0 b0 7b 00
+        CCINTERP 32
+        CHASE_CC_TAKEOFFS 1
+        GUID {40FBD04A-0580-4904-B702-F9C7D2ECD44B}
+        IGNTEMPO 0 120 4 4
+        SRCCOLOR 0
+        VELLANE -1 100 0 0 1
+        CFGEDITVIEW 0 0.266927 63 12 0 -1 0 0 0 0.5
+        KEYSNAP 0
+        TRACKSEL 0
+        EVTFILTER 0 -1 -1 -1 -1 0 0 0 0 -1 -1 -1 -1 0 -1 0 -1 -1
+        CFGEDIT 1 1 0 1 0 0 1 1 1 1 1 0.125 0 -1016 1271 -415 0 0 0 0 0 0 0 0 0 0.5 0 0 1 64
+      >
+    >
+    <ITEM
+      POSITION 2
+      SNAPOFFS 0
+      LENGTH 2
+      LOOP 1
+      ALLTAKES 0
+      FADEIN 1 0 0 1 0 0 0
+      FADEOUT 1 0 0 1 0 0 0
+      MUTE 0 0
+      BEAT 1
+      SEL 1
+      IGUID {211F29BF-002F-4661-B030-4B3EEBE990B3}
+      IID 45
       NAME "Click source"
       VOLPAN 1 0 1 -1
       SOFFS 0
       PLAYRATE 1 1 0 -1 0 0.0025
       CHANMODE 0
-      GUID {35BCE135-4862-4E7A-A7E1-4F057632C18E}
+      GUID {B9D18534-762A-4882-A417-79901AF1E0D2}
       <SOURCE CLICK
         AUTO 1
         BPM 120
         BPI 4 4
-        VOL 1.778279 3.162278
+        VOL 1.258925 0.630957
         BEATLEN 4
         FREQ 1760 880 1
-        SAMPLES "C:\Users\abhch\Desktop\Music\Resources\Learning Track Templates\Learning Track Template - Barbershop\Media\ClickSamples\MetronomeUp.wav" "C:\Users\abhch\Desktop\Music\Resources\Learning Track Templates\Learning Track Template - Barbershop\Media\ClickSamples\Metronome.wav" Media\ClickSamples\MetronomeUp.wav Media\ClickSamples\Metronome.wav
-        SPLIGNORE 0 0
-        SPLDEF 2 660 "" 0 ""
-        SPLDEF 3 440 "" 0 ""
-        PATTERN 0 169
-        PATTERNSTR ABBB
-        MULT 1
-      >
-    >
-    <ITEM
-      POSITION 7.8
-      SNAPOFFS 0
-      LENGTH 2.2
-      LOOP 1
-      ALLTAKES 0
-      FADEIN 1 0.01 0 1 0 0 0
-      FADEOUT 1 0 0 1 0 0 0
-      MUTE 0 0
-      SEL 0
-      IGUID {8A46DCDD-9488-464F-8848-7230595D8B8C}
-      IID 1
-      NAME "Click source"
-      VOLPAN 1 0 1 -1
-      SOFFS 7.8
-      PLAYRATE 1 1 0 -1 0 0.0025
-      CHANMODE 0
-      GUID {FEF73D4B-5A75-4F03-A7EA-D8656C7AC804}
-      <SOURCE CLICK
-        AUTO 1
-        BPM 120
-        BPI 4 4
-        VOL 1.778279 3.162278
-        BEATLEN 4
-        FREQ 1760 880 1
-        SAMPLES "C:\Users\abhch\Desktop\Music\Resources\Learning Track Templates\Learning Track Template - Barbershop\Media\ClickSamples\MetronomeUp.wav" "C:\Users\abhch\Desktop\Music\Resources\Learning Track Templates\Learning Track Template - Barbershop\Media\ClickSamples\Metronome.wav" Media\ClickSamples\MetronomeUp.wav Media\ClickSamples\Metronome.wav
+        SAMPLES "C:\Users\abhch\AppData\Roaming\REAPER\Scripts\Learning Track Templates\Media\ClickSamples\MetronomeUp.wav" "C:\Users\abhch\AppData\Roaming\REAPER\Scripts\Learning Track Templates\Media\ClickSamples\Metronome.wav" Media\ClickSamples\MetronomeUp.wav Media\ClickSamples\Metronome.wav
         SPLIGNORE 0 0
         SPLDEF 2 660 "" 0 ""
         SPLDEF 3 440 "" 0 ""

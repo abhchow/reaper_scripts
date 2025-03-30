@@ -333,7 +333,6 @@ main()
 --  TODO: Clean up the code and refactor things
 --    TODO: Check for places to use set_pans and set_volumes
 --    TODO: Put all of the customisable values in one spot
---  TODO: Add a pitch pipe synth into every metronome track in the templates and document in readme
 --  TODO: Add optional numbers to the start of the file names
 --    TODO: Refactoring the code to export all the tracks for each part might make this easier, and help with custom combinations
 --  TODO: Detect clipping in export, delete the clipped track and re-export at a lower volume

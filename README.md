@@ -33,6 +33,7 @@ Then, click Actions at the top of your screen, and click Show Action List. Then,
 Importantly, this script was written for _my own_ convenience and contains a number of _hardcoded shortcuts_ - in other words, it is only designed to work under certain circumstances:
 - You can set your faders however you like, and the program will adjust volumes for each learning traack relative to how you set the faders
 - If you wish to include a metronome, it must be the _last_ track, and named either "Click" or "Metronome"
+  - The templates include a metronome and have a synth set up to use as a pitch pipe. Just double click on the synth to open the midi menu and change the note.
 - The hard panned part tracks have the following defaults:
   - The main part is panned hard left and the other parts are panned hard right. You can change this by changing the value of `hard_pan_position` to 1 instead of -1
   - The main part is 3 times louder than the other parts. You can change thiss by changing the value of `hard_pan_volume`
