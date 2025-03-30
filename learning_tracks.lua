@@ -221,35 +221,37 @@ function export_all(n, project_name, path, second_bottom_track, export_parts_onl
 
 end
 
+function main()
+  export_parts_only = true
+  n = reaper.GetNumTracks()
+  project_name_ext = reaper.GetProjectName()
+  project_name = string.sub(project_name_ext, 0, string.len(project_name_ext) - 4) -- stripping .rpp file extension
+  path = reaper.GetProjectPath() .. "\\Learning Track Exports"
 
-export_parts_only = true
-n = reaper.GetNumTracks()
-project_name_ext = reaper.GetProjectName()
-project_name = string.sub(project_name_ext, 0, string.len(project_name_ext) - 4) -- stripping .rpp file extension
-path = reaper.GetProjectPath() .. "\\Learning Track Exports"
+  bottom_track = reaper.GetTrack(0,n-1)
+  retval, bottom_track_name = reaper.GetTrackName(bottom_track)
+  second_bottom_track = reaper.GetTrack(0,n-2)
+  retval, second_bottom_track_name = reaper.GetTrackName(second_bottom_track)
+  vp = false
 
-bottom_track = reaper.GetTrack(0,n-1)
-retval, bottom_track_name = reaper.GetTrackName(bottom_track)
-second_bottom_track = reaper.GetTrack(0,n-2)
-retval, second_bottom_track_name = reaper.GetTrackName(second_bottom_track)
-vp = false
-
-if bottom_track_name == "Metronome" or bottom_track_name == "Click" then
-  if second_bottom_track_name == "VP" then
-    vp = true
+  if bottom_track_name == "Metronome" or bottom_track_name == "Click" then
+    if second_bottom_track_name == "VP" then
+      vp = true
+    end
+    reaper.SetMediaTrackInfo_Value(bottom_track, "D_PAN", 0);
+    --reaper.SetMediaTrackInfo_Value(bottom_track, "D_VOL", 1);
+    export_all(n-1, project_name, path, second_bottom_track, export_parts_only, vp)
+  else
+    if bottom_track_name == "VP" then
+      vp = true
+    end
+    export_all(n, project_name, path, second_bottom_track, export_parts_only, vp)
   end
-  reaper.SetMediaTrackInfo_Value(bottom_track, "D_PAN", 0);
-  --reaper.SetMediaTrackInfo_Value(bottom_track, "D_VOL", 1);
-  export_all(n-1, project_name, path, second_bottom_track, export_parts_only, vp)
-else
-  if bottom_track_name == "VP" then
-    vp = true
-  end
-  export_all(n, project_name, path, second_bottom_track, export_parts_only, vp)
+
+  reset(n)
 end
 
-reset(n)
-
+-- main()
 
 -- TODO: Add optional numbers to the start of the file names
 -- TODO: Parameterise everything
