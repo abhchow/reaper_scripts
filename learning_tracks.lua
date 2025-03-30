@@ -1,7 +1,7 @@
 dofile(reaper.GetResourcePath().."/UserPlugins/ultraschall_api.lua")
 
 
-function panned_learning_tracks(n, project_name, path, part_position, volume_diff)
+function panned_learning_tracks(n, project_name, path, part_position, volume_diff, original_volumes)
   -- part position should be either -1 (left) or 1 (right)
 
   for i = 0, n-1, 1 do
@@ -12,10 +12,10 @@ function panned_learning_tracks(n, project_name, path, part_position, volume_dif
       track = reaper.GetTrack(0, j)
       
       if i == j then -- double volume and hard pan left target track
-        reaper.SetMediaTrackInfo_Value(track, "D_VOL", volume_diff);
+        reaper.SetMediaTrackInfo_Value(track, "D_VOL", volume_diff*original_volumes[j+1]);
         reaper.SetMediaTrackInfo_Value(track, "D_PAN", part_position);
       else -- set volumes to 0dB and hard pan right all other tracks
-        reaper.SetMediaTrackInfo_Value(track, "D_VOL", 1);
+        reaper.SetMediaTrackInfo_Value(track, "D_VOL", original_volumes[j+1]);
         reaper.SetMediaTrackInfo_Value(track, "D_PAN", -part_position);
       end
     end
@@ -27,10 +27,10 @@ function panned_learning_tracks(n, project_name, path, part_position, volume_dif
 end
 
 
-function full_mix_learning_track(n, project_name, path, pans)
+function full_mix_learning_track(n, project_name, path, pans, original_volumes)
   for i = 0, n-1, 1 do
     track = reaper.GetTrack(0, i)
-    reaper.SetMediaTrackInfo_Value(track, "D_VOL", 1);
+    reaper.SetMediaTrackInfo_Value(track, "D_VOL", original_volumes[i+1]);
     reaper.SetMediaTrackInfo_Value(track, "D_PAN", pans[i+1]);
   end
   
@@ -40,10 +40,10 @@ function full_mix_learning_track(n, project_name, path, pans)
 end
 
 
-function part_missing_learning_tracks(n, project_name, path, pans)
+function part_missing_learning_tracks(n, project_name, path, pans, original_volumes)
   for i = 0, n-1, 1 do
     track = reaper.GetTrack(0, i)
-    reaper.SetMediaTrackInfo_Value(track, "D_VOL", 1);
+    reaper.SetMediaTrackInfo_Value(track, "D_VOL", original_volumes[i+1]);
     reaper.SetMediaTrackInfo_Value(track, "D_PAN", pans[i+1]);
   end
 
@@ -54,10 +54,10 @@ function part_missing_learning_tracks(n, project_name, path, pans)
     for j = 0, n-1, 1 do
       track = reaper.GetTrack(0, j)
       
-      if i == j then -- double volume and hard pan left target track
+      if i == j then
         reaper.SetMediaTrackInfo_Value(track, "D_VOL", 0);
-      else -- set volumes to 0dB and hard pan right all other tracks
-        reaper.SetMediaTrackInfo_Value(track, "D_VOL", 1);
+      else
+        reaper.SetMediaTrackInfo_Value(track, "D_VOL", original_volumes[j+1]);
       end
     end
     
@@ -68,7 +68,7 @@ function part_missing_learning_tracks(n, project_name, path, pans)
 end
 
 
-function parts_only(n, project_name, path, volume)
+function parts_only(n, project_name, path, volume, original_volumes)
   for i = 0, n-1, 1 do
     track = reaper.GetTrack(0, i)
     reaper.SetMediaTrackInfo_Value(track, "D_PAN", 0);
@@ -82,7 +82,7 @@ function parts_only(n, project_name, path, volume)
       track = reaper.GetTrack(0, j)
       
       if i == j then 
-        reaper.SetMediaTrackInfo_Value(track, "D_VOL", volume);
+        reaper.SetMediaTrackInfo_Value(track, "D_VOL", volume*original_volumes[j+1]);
       else
         reaper.SetMediaTrackInfo_Value(track, "D_VOL", 0);
       end
@@ -95,7 +95,7 @@ function parts_only(n, project_name, path, volume)
 end
 
 
-function rhythm_learning_tracks(n, project_name, path)
+function rhythm_learning_tracks(n, project_name, path, original_volumes)
   -- vp is n-1
   -- bass is n-2
   bass_track = reaper.GetTrack(0,n-2)
@@ -104,8 +104,8 @@ function rhythm_learning_tracks(n, project_name, path)
   retval, vpt_name = reaper.GetTrackName(vp_track)
   
   -- rhythm only track
-  reaper.SetMediaTrackInfo_Value(bass_track, "D_VOL", 1);
-  reaper.SetMediaTrackInfo_Value(vp_track, "D_VOL", 1);
+  reaper.SetMediaTrackInfo_Value(bass_track, "D_VOL", original_volumes[n-1]);
+  reaper.SetMediaTrackInfo_Value(vp_track, "D_VOL", original_volumes[n]);
   reaper.SetMediaTrackInfo_Value(bass_track, "D_PAN", 0);
   reaper.SetMediaTrackInfo_Value(vp_track, "D_PAN", 0);
   for i = 0, n-3, 1 do
@@ -128,13 +128,13 @@ function rhythm_learning_tracks(n, project_name, path)
   reaper.ShowConsoleMsg(displayMessage)
 
   -- rhythm panned
-  reaper.SetMediaTrackInfo_Value(bass_track, "D_VOL", 1.5);
-  reaper.SetMediaTrackInfo_Value(vp_track, "D_VOL", 1.5);
+  reaper.SetMediaTrackInfo_Value(bass_track, "D_VOL", 1.5*original_volumes[n-1]);
+  reaper.SetMediaTrackInfo_Value(vp_track, "D_VOL", 1.5*original_volumes[n]);
   reaper.SetMediaTrackInfo_Value(bass_track, "D_PAN", -1);
   reaper.SetMediaTrackInfo_Value(vp_track, "D_PAN", -1);
   for i = 0, n-3, 1 do
     track = reaper.GetTrack(0, i)
-    reaper.SetMediaTrackInfo_Value(track, "D_VOL", 1);
+    reaper.SetMediaTrackInfo_Value(track, "D_VOL", original_volumes[i+1]);
     reaper.SetMediaTrackInfo_Value(track, "D_PAN", 1);
   end
   
@@ -199,15 +199,6 @@ function positions_to_pans(positions, width)
 end
 
 
-function reset(n)
-  for i = 0, n-1, 1 do
-    track = reaper.GetTrack(0, i)
-    reaper.SetMediaTrackInfo_Value(track, "D_VOL", 1);
-    reaper.SetMediaTrackInfo_Value(track, "D_PAN", 0);
-  end
-end
-
-
 function export_track(export_file_name, path)
   retval = ultraschall.SetProject_RenderFilename(nil, path .. export_file_name)
   render_cfg_string = ultraschall.CreateRenderCFG_MP3MaxQuality()
@@ -231,16 +222,57 @@ function export_all(n, project_name, path, second_bottom_track, export_parts_onl
   pans = positions_to_pans(positions, 0.6) -- overwrite this to customise
 
   if export_parts_only then
-    parts_only(n, project_name, path, 2)
+    parts_only(n, project_name, path, 2, original_volumes)
   end
-  panned_learning_tracks(n, project_name, path, hard_pan_position, hard_pan_volume)
-  part_missing_learning_tracks(n, project_name, path, pans)
+  panned_learning_tracks(n, project_name, path, hard_pan_position, hard_pan_volume, original_volumes)
+  part_missing_learning_tracks(n, project_name, path, pans, original_volumes)
   if vp then
-    rhythm_learning_tracks(n, project_name, path)
+    rhythm_learning_tracks(n, project_name, path, original_volumes)
   end
-  full_mix_learning_track(n, project_name, path, pans)
+  full_mix_learning_track(n, project_name, path, pans, original_volumes)
 
 end
+
+
+function get_pans(n)
+-- read pans of all parts and store them
+  pans = {}
+  for i = 0, n-1, 1 do
+    track = reaper.GetTrack(0, i)
+    pans[i+1] = reaper.GetMediaTrackInfo_Value(track, "D_PAN")
+  end
+  return pans
+end
+
+
+function set_pans(pans)
+-- set pans of all parts
+  for i = 0, n-1, 1 do
+    track = reaper.GetTrack(0, i)
+    reaper.SetMediaTrackInfo_Value(track, "D_PAN", pans[i+1])
+  end
+end
+
+
+function get_volumes(n)
+-- read volumes of all parts and store them
+  volumes = {}
+  for i = 0, n-1, 1 do
+    track = reaper.GetTrack(0, i)
+    volumes[i+1] = reaper.GetMediaTrackInfo_Value(track, "D_VOL")
+  end
+  return volumes
+end
+
+
+function set_volumes(volumes)
+-- set volumes of all parts
+  for i = 0, n-1, 1 do
+    track = reaper.GetTrack(0, i)
+    reaper.SetMediaTrackInfo_Value(track, "D_VOL", volumes[i+1])
+  end
+end
+
 
 function main()
   export_parts_only = true
@@ -257,12 +289,24 @@ function main()
   hard_pan_position = -1
   hard_pan_volume = 2
 
+  original_pans = get_pans(n)
+  original_volumes = get_volumes(n)
+  reaper.ShowConsoleMsg("Original pans: ") 
+  for i = 1, n do
+    reaper.ShowConsoleMsg(original_pans[i] .. " ")
+  end
+  reaper.ShowConsoleMsg("\n")
+  reaper.ShowConsoleMsg("Original volumes: ")
+  for i = 1, n do
+    reaper.ShowConsoleMsg(original_volumes[i] .. " ")
+  end
+  reaper.ShowConsoleMsg("\n")
+
   if bottom_track_name == "Metronome" or bottom_track_name == "Click" then
     if second_bottom_track_name == "VP" then
       vp = true
     end
-    reaper.SetMediaTrackInfo_Value(bottom_track, "D_PAN", 0);
-    --reaper.SetMediaTrackInfo_Value(bottom_track, "D_VOL", 1);
+    reaper.SetMediaTrackInfo_Value(bottom_track, "D_PAN", 0); -- no need to set metronome volume because we never touch it elsewhere
     export_all(n-1, project_name, path, second_bottom_track, export_parts_only, vp, hard_pan_position, hard_pan_volume)
   else
     if bottom_track_name == "VP" then
@@ -271,17 +315,13 @@ function main()
     export_all(n, project_name, path, second_bottom_track, export_parts_only, vp, hard_pan_position, hard_pan_volume)
   end
 
-  reset(n)
+  set_pans(original_pans)
+  set_volumes(original_volumes)
 end
 
 main()
 
 -- TODO: Add optional numbers to the start of the file names
--- TODO: Parameterise everything
---    TODO: Parameterise volume for all tracks (make it so that you can drop the volume of all parts the same amount)
--- TODO: Set pans function for convenience
---    TODO: Restore function (putting volume and pan back where they were)
---    TODO: Get original state function (store volume and pan values before running the script)
 -- TODO: Detect clipping in export, delete the clipped track and re-export at a lower volume
 -- TODO: Build a GUI to turn this into a rehearsal tool
 --    TODO: Options to select a custom panning arrangement for full mix and part missing tracks
