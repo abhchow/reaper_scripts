@@ -37,10 +37,10 @@ function panned_learning_tracks(n, project_name, path, part_position, volume_dif
     for j = 0, n-1, 1 do
       track = reaper.GetTrack(0, j)
       
-      if i == j then -- double volume and hard pan left target track
+      if i == j then -- double volume and hard pan target track
         reaper.SetMediaTrackInfo_Value(track, "D_VOL", volume_diff*original_volumes[j+1]);
         reaper.SetMediaTrackInfo_Value(track, "D_PAN", part_position);
-      else -- set volumes to 0dB and hard pan right all other tracks
+      else -- reset volume and hard pan in the other direction for all other tracks
         reaper.SetMediaTrackInfo_Value(track, "D_VOL", original_volumes[j+1]);
         reaper.SetMediaTrackInfo_Value(track, "D_PAN", -part_position);
       end
@@ -214,7 +214,7 @@ function export_track(export_file_name, path)
 end
 
 
-function export_all(n, project_name, path, second_bottom_track, export_parts_only, vp, hard_pan_position, hard_pan_volume)
+function export_all(n, project_name, path, second_bottom_track, export_parts_only, vp, hard_pan_position, hard_pan_volume, original_volumes)
   top_track = reaper.GetTrack(0,0)
   retval, top_track_name = reaper.GetTrackName(top_track)
   positions = get_positions(n, top_track_name, vp)
@@ -273,6 +273,15 @@ function set_volumes(volumes)
 end
 
 
+function print_volumes(volumes)
+  reaper.ShowConsoleMsg("Volumes: ")
+  for i = 1, n do
+    reaper.ShowConsoleMsg(volumes[i] .. " ")
+  end
+  reaper.ShowConsoleMsg("\n")
+end
+
+
 function main()
   export_parts_only = true
   n = reaper.GetNumTracks()
@@ -306,12 +315,12 @@ function main()
       vp = true
     end
     reaper.SetMediaTrackInfo_Value(bottom_track, "D_PAN", 0); -- no need to set metronome volume because we never touch it elsewhere
-    export_all(n-1, project_name, path, second_bottom_track, export_parts_only, vp, hard_pan_position, hard_pan_volume)
+    export_all(n-1, project_name, path, second_bottom_track, export_parts_only, vp, hard_pan_position, hard_pan_volume, original_volumes)
   else
     if bottom_track_name == "VP" then
       vp = true
     end
-    export_all(n, project_name, path, second_bottom_track, export_parts_only, vp, hard_pan_position, hard_pan_volume)
+    export_all(n, project_name, path, second_bottom_track, export_parts_only, vp, hard_pan_position, hard_pan_volume, original_volumes)
   end
 
   set_pans(original_pans)
@@ -320,8 +329,16 @@ end
 
 main()
 
--- TODO: Add optional numbers to the start of the file names
--- TODO: Detect clipping in export, delete the clipped track and re-export at a lower volume
--- TODO: Build a GUI to turn this into a rehearsal tool
+--  TODO: Clean up the README, make sure all features are documented, make it easy to read for someone who doesn't know programming
+--  TODO: Clean up the code and refactor things
+--    TODO: Check for places to use set_pans and set_volumes
+--    TODO: Put all of the customisable values in one spot
+--  TODO: Add a pitch pipe synth into every metronome track in the templates and document in readme
+--  TODO: Add optional numbers to the start of the file names
+--    TODO: Refactoring the code to export all the tracks for each part might make this easier, and help with custom combinations
+--  TODO: Detect clipping in export, delete the clipped track and re-export at a lower volume
+--  TODO: Build a GUI to turn this into a rehearsal tool
 --    TODO: Options to select a custom panning arrangement for full mix and part missing tracks
 --    TODO: Options to select custom combinations of different parts present, not just Bass and VP
+--      TODO: Refactoring the code to export all the tracks for each part might make this easier
+--            ie, export all  tracks for Sop, then all tracks for Alto etc, then all combinations, Bass+VP, plus whatever else is custom defined
