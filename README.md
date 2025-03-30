@@ -32,11 +32,14 @@ Then, click Actions at the top of your screen, and click Show Action List. Then,
 ### Usage Notes
 Importantly, this script was written for _my own_ convenience and contains a number of _hardcoded shortcuts_ - in other words, it is only designed to work under certain circumstances:
 - If you wish to include a metronome, it must be the _last_ track, and named either "Click" or "Metronome"
-- The panning arrangements are only defined for 4, 5, or 6 parts
+- The hard panned part tracks have the following defaults:
+  - The main part is panned hard left and the other parts are panned hard right. You can change this by changing the value of `hard_pan_position` to 1 instead of -1
+  - The main part is 3 times louder than the other parts. You can change thiss by changing the value of `hard_pan_volume`
+- The full mix and part missing tracks have a panning arrangement that puts specific parts in specific panning spots. These panning arrangements are only defined for 4, 5, or 6 parts
   - There are separate panning arrangements for SATB and Barbershop parts. If you wish to use the Barbershop panning pattern, name your first track "Tenor"
   - You must name any beatbox/vocal percussion parts "VP". Otherwise your VP will end up panned somewhere else.
-  - The panning arrangements can be customised by editing the script and changing the sequence of numbers in the get_positions function. The smaller the number the further left, the larger the number the further right. You can put in any numbers and the script will adjust automatically for you.
-    - You can also adjust the width in the positions_to_pans function. By default the width is 0.6.
+  - The panning arrangements can be customised by editing the script and changing the sequence of numbers in the `get_positions()` function. The smaller the number the further left, the larger the number the further right. You can put in any numbers and the script will adjust automatically for you.
+    - You can also adjust the width in the `positions_to_pans()` function. By default the width is 0.6.
 - Exporting rhythm learning tracks assumes that the Bass and VP are the last two tracks (excluding metronome)
 - You may need to edit the script yourself to enable or disable some features. 
 
@@ -44,6 +47,5 @@ Importantly, this script was written for _my own_ convenience and contains a num
 ## Future Works
 I have further improvements to this script planned, but I may or may not get to them. Those include:
 - A GUI for ease of use
-- Options to choose panning hard left or hard right
 - Options to select a custom panning arrangement for full mix and part missing tracks
 - Options to select custom combinations of different parts present, not just Bass and VP

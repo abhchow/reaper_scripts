@@ -1,7 +1,9 @@
 dofile(reaper.GetResourcePath().."/UserPlugins/ultraschall_api.lua")
 
 
-function panned_learning_tracks(n, project_name, path)
+function panned_learning_tracks(n, project_name, path, part_position, volume_diff)
+  -- part position should be either -1 (left) or 1 (right)
+
   for i = 0, n-1, 1 do
     track_main = reaper.GetTrack(0, i)
     retval, track_name = reaper.GetTrackName(track_main)
@@ -10,11 +12,11 @@ function panned_learning_tracks(n, project_name, path)
       track = reaper.GetTrack(0, j)
       
       if i == j then -- double volume and hard pan left target track
-        reaper.SetMediaTrackInfo_Value(track, "D_VOL", 2);
-        reaper.SetMediaTrackInfo_Value(track, "D_PAN", -1);
+        reaper.SetMediaTrackInfo_Value(track, "D_VOL", volume_diff);
+        reaper.SetMediaTrackInfo_Value(track, "D_PAN", part_position);
       else -- set volumes to 0dB and hard pan right all other tracks
         reaper.SetMediaTrackInfo_Value(track, "D_VOL", 1);
-        reaper.SetMediaTrackInfo_Value(track, "D_PAN", 1);
+        reaper.SetMediaTrackInfo_Value(track, "D_PAN", -part_position);
       end
     end
     
@@ -222,16 +224,16 @@ function export_track(export_file_name, path)
 end
 
 
-function export_all(n, project_name, path, second_bottom_track, export_parts_only, vp)
+function export_all(n, project_name, path, second_bottom_track, export_parts_only, vp, hard_pan_position, hard_pan_volume)
   top_track = reaper.GetTrack(0,0)
   retval, top_track_name = reaper.GetTrackName(top_track)
   positions = get_positions(n, top_track_name, vp)
-  pans = positions_to_pans(positions, 0.6)
+  pans = positions_to_pans(positions, 0.6) -- overwrite this to customise
 
   if export_parts_only then
     parts_only(n, project_name, path)
   end
-  panned_learning_tracks(n, project_name, path)
+  panned_learning_tracks(n, project_name, path, hard_pan_position, hard_pan_volume)
   part_missing_learning_tracks(n, project_name, path, pans)
   if vp then
     rhythm_learning_tracks(n, project_name, path)
@@ -252,6 +254,8 @@ function main()
   second_bottom_track = reaper.GetTrack(0,n-2)
   retval, second_bottom_track_name = reaper.GetTrackName(second_bottom_track)
   vp = false
+  hard_pan_position = -1
+  hard_pan_volume = 3
 
   if bottom_track_name == "Metronome" or bottom_track_name == "Click" then
     if second_bottom_track_name == "VP" then
@@ -259,12 +263,12 @@ function main()
     end
     reaper.SetMediaTrackInfo_Value(bottom_track, "D_PAN", 0);
     --reaper.SetMediaTrackInfo_Value(bottom_track, "D_VOL", 1);
-    export_all(n-1, project_name, path, second_bottom_track, export_parts_only, vp)
+    export_all(n-1, project_name, path, second_bottom_track, export_parts_only, vp, hard_pan_position, hard_pan_volume)
   else
     if bottom_track_name == "VP" then
       vp = true
     end
-    export_all(n, project_name, path, second_bottom_track, export_parts_only, vp)
+    export_all(n, project_name, path, second_bottom_track, export_parts_only, vp, hard_pan_position, hard_pan_volume)
   end
 
   reset(n)
@@ -274,12 +278,11 @@ main()
 
 -- TODO: Add optional numbers to the start of the file names
 -- TODO: Parameterise everything
-  -- TODO: Parameterise volume for all tracks (make it so that you can drop the volume of all parts the same amount)
-  -- TODO: Parameterise hard panning so that you can choose left or right
+--    TODO: Parameterise volume for all tracks (make it so that you can drop the volume of all parts the same amount)
 -- TODO: Set pans function for convenience
--- TODO: Restore function (putting volume and pan back where they were)
-  -- TODO: Get original state function (store volume and pan values before running the script)
+--    TODO: Restore function (putting volume and pan back where they were)
+--    TODO: Get original state function (store volume and pan values before running the script)
 -- TODO: Detect clipping in export, delete the clipped track and re-export at a lower volume
 -- TODO: Build a GUI to turn this into a rehearsal tool
-  -- TODO: Options to select a custom panning arrangement for full mix and part missing tracks
-  -- TODO: Options to select custom combinations of different parts present, not just Bass and VP
+--    TODO: Options to select a custom panning arrangement for full mix and part missing tracks
+--    TODO: Options to select custom combinations of different parts present, not just Bass and VP
