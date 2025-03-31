@@ -1,24 +1,14 @@
 dofile(reaper.GetResourcePath().."/UserPlugins/ultraschall_api.lua")
 
 function parts_only(n, project_name, path, volume, original_volumes)
-  for i = 0, n-1, 1 do
-    track = reaper.GetTrack(0, i)
-    reaper.SetMediaTrackInfo_Value(track, "D_PAN", 0);
-  end
+  zeros = get_zeros(n)
+  set_pans(zeros)
 
   for i = 0, n-1, 1 do
-    track_main = reaper.GetTrack(0, i)
-    retval, track_name = reaper.GetTrackName(track_main)
-    
-    for j = 0, n-1, 1 do
-      track = reaper.GetTrack(0, j)
-      
-      if i == j then 
-        reaper.SetMediaTrackInfo_Value(track, "D_VOL", volume*original_volumes[j+1]);
-      else
-        reaper.SetMediaTrackInfo_Value(track, "D_VOL", 0);
-      end
-    end
+    set_volumes(get_zeros(n))
+    track = reaper.GetTrack(0, i)
+    retval, track_name = reaper.GetTrackName(track)
+    reaper.SetMediaTrackInfo_Value(track, "D_VOL", volume*original_volumes[i+1]);
     
     export_file_name = "\\" .. project_name .. " - " .. track_name .. ".mp3"
     export_track(export_file_name, path)
@@ -31,8 +21,8 @@ function panned_learning_tracks(n, project_name, path, part_position, volume_dif
   -- part position should be either -1 (left) or 1 (right)
 
   for i = 0, n-1, 1 do
-    track_main = reaper.GetTrack(0, i)
-    retval, track_name = reaper.GetTrackName(track_main)
+    track = reaper.GetTrack(0, i)
+    retval, track_name = reaper.GetTrackName(track)
     
     for j = 0, n-1, 1 do
       track = reaper.GetTrack(0, j)
@@ -54,25 +44,15 @@ end
 
 
 function part_missing_learning_tracks(n, project_name, path, pans, original_volumes)
-  for i = 0, n-1, 1 do
-    track = reaper.GetTrack(0, i)
-    reaper.SetMediaTrackInfo_Value(track, "D_VOL", original_volumes[i+1]);
-    reaper.SetMediaTrackInfo_Value(track, "D_PAN", pans[i+1]);
-  end
+  set_pans(pans)
+  set_volumes(original_volumes)
 
   for i = 0, n-1, 1 do
-    track_main = reaper.GetTrack(0, i)
-    retval, track_name = reaper.GetTrackName(track_main)
+    track = reaper.GetTrack(0, i)
+    retval, track_name = reaper.GetTrackName(track)
     
-    for j = 0, n-1, 1 do
-      track = reaper.GetTrack(0, j)
-      
-      if i == j then
-        reaper.SetMediaTrackInfo_Value(track, "D_VOL", 0);
-      else
-        reaper.SetMediaTrackInfo_Value(track, "D_VOL", original_volumes[j+1]);
-      end
-    end
+    set_volumes(original_volumes)
+    reaper.SetMediaTrackInfo_Value(track, "D_VOL", 0);
     
     export_file_name = "\\" .. project_name .. " - " .. track_name .. " Missing.mp3"
     export_track(export_file_name, path)
@@ -131,11 +111,8 @@ end
 
 
 function full_mix_learning_track(n, project_name, path, pans, original_volumes)
-  for i = 0, n-1, 1 do
-    track = reaper.GetTrack(0, i)
-    reaper.SetMediaTrackInfo_Value(track, "D_VOL", original_volumes[i+1]);
-    reaper.SetMediaTrackInfo_Value(track, "D_PAN", pans[i+1]);
-  end
+  set_pans(pans)
+  set_volumes(original_volumes)
   
   export_file_name = "\\" .. project_name .. " - Full Mix.mp3"
   export_track(export_file_name, path)
@@ -230,6 +207,15 @@ function export_all(n, project_name, path, second_bottom_track, export_parts_onl
   end
   full_mix_learning_track(n, project_name, path, pans, original_volumes)
 
+end
+
+
+function get_zeros(n)
+  arr = {}
+  for i = 0, n-1, 1 do
+    arr[i+1] = 0
+  end
+  return arr
 end
 
 
@@ -329,6 +315,7 @@ end
 
 main()
 
+--  TODO: Make sure all variables are local instead of global
 --  TODO: Clean up the README, make sure all features are documented, make it easy to read for someone who doesn't know programming
 --  TODO: Clean up the code and refactor things
 --    TODO: Check for places to use set_pans and set_volumes
