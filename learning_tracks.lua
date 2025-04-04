@@ -81,19 +81,7 @@ function rhythm_learning_tracks(n, project_name, path, original_volumes)
   end
   
   local export_file_name = "\\" .. project_name .. " - Rhythm.mp3"
-  local retval = ultraschall.SetProject_RenderFilename(nil, path .. export_file_name)
-  local render_cfg_string = ultraschall.CreateRenderCFG_MP3MaxQuality()
-  
-  local retval, renderfilecount, MediaItemStateChunkArray, Filearray
-    = ultraschall.RenderProject(nil, path .. export_file_name, 0, -1, false, false, false, render_cfg_string, nil)
-  
-  local displayMessage
-  if retval == 0 then
-    local displayMessage = "Successfully exported " .. path .. export_file_name .. "\n"
-  else
-    local displayMessage = "Failed to export " .. path .. export_file_name .. "\n"
-  end
-  reaper.ShowConsoleMsg(displayMessage)
+  export_track(export_file_name, path)
 
   -- rhythm panned
   reaper.SetMediaTrackInfo_Value(bass_track, "D_VOL", 1.5*original_volumes[n-1]);
