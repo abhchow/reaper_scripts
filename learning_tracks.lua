@@ -219,7 +219,7 @@ function get_zeros(n)
 end
 
 
-function get_pans(n)
+function get_current_pans(n)
   -- read pans of all parts and store them
   pans = {}
   for i = 0, n-1, 1 do
@@ -232,14 +232,14 @@ end
 
 function set_pans(pans)
   -- set pans of all parts
-  for i = 0, n-1, 1 do
+  for i = 1, #pans-1 do
     track = reaper.GetTrack(0, i)
     reaper.SetMediaTrackInfo_Value(track, "D_PAN", pans[i+1])
   end
 end
 
 
-function get_volumes(n)
+function get_current_volumes(n)
   -- read volumes of all parts and store them
   volumes = {}
   for i = 0, n-1, 1 do
@@ -252,7 +252,7 @@ end
 
 function set_volumes(volumes)
   -- set volumes of all parts
-  for i = 0, n-1, 1 do
+  for i = 0, #volumes-1 do
     track = reaper.GetTrack(0, i)
     reaper.SetMediaTrackInfo_Value(track, "D_VOL", volumes[i+1])
   end
@@ -261,7 +261,7 @@ end
 
 function print_volumes(volumes)
   reaper.ShowConsoleMsg("Volumes: ")
-  for i = 1, n do
+  for i = 1, #volumes do
     reaper.ShowConsoleMsg(volumes[i] .. " ")
   end
   reaper.ShowConsoleMsg("\n")
@@ -283,8 +283,8 @@ function main()
   hard_pan_position = -1
   hard_pan_volume = 2
 
-  original_pans = get_pans(n)
-  original_volumes = get_volumes(n)
+  original_pans = get_current_pans(n)
+  original_volumes = get_current_volumes(n)
   reaper.ShowConsoleMsg("Original pans: ") 
   for i = 1, n do
     reaper.ShowConsoleMsg(original_pans[i] .. " ")
