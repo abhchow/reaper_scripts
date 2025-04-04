@@ -102,7 +102,8 @@ end
 
 function full_mix_learning_track(n, project_name, path, pans, original_volumes, volume_diff)
   local master_track = reaper.GetMasterTrack()
-  reaper.SetMediaTrackInfo_Value(master_track, "D_VOL", volume_diff);
+  local master_vol = reaper.GetMediaTrackInfo_Value(master_track, "D_VOL");
+  reaper.SetMediaTrackInfo_Value(master_track, "D_VOL", master_vol*volume_diff);
 
   set_pans(pans)
   set_volumes(original_volumes)
@@ -200,8 +201,7 @@ function export_all(n, project_name, path, second_bottom_track, export_parts_onl
   if vp then
     rhythm_learning_tracks(n, project_name, path, original_volumes)
   end
-  full_mix_learning_track(n, project_name, path, pans, original_volumes, 0.5)
-
+  full_mix_learning_track(n, project_name, path, pans, original_volumes, 0.7)
 end
 
 
