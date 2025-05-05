@@ -51,3 +51,4 @@ I have further improvements to this script planned, but I may or may not get to 
 - A GUI for ease of use
 - Options to select a custom panning arrangement for full mix and part missing tracks
 - Options to select custom combinations of different parts present, not just Bass and VP
+- Extract settings into a `settings.yaml` file
