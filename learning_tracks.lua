@@ -1,30 +1,53 @@
 dofile(reaper.GetResourcePath().."/UserPlugins/ultraschall_api.lua")
 
--- function parts_only(n, project_name, path, original_volumes)
---   local zeros = get_zeros(n)
---   set_pans(zeros)
-
---   for i = 0, n-1, 1 do
---     set_volumes(get_zeros(n))
---     local track = reaper.GetTrack(0, i)
---     local retval, track_name = reaper.GetTrackName(track)
---     reaper.SetMediaTrackInfo_Value(track, "D_VOL", original_volumes[i+1]);
-    
---     local export_file_name = "\\" .. project_name .. " - " .. track_name .. ".mp3"
---     export_track(export_file_name, path)
---   end
---   reaper.ShowConsoleMsg("\n")
---   set_volumes(original_volumes)
--- end
+-- functions that should really be built into lua
+function print_array(arr)
+  reaper.ShowConsoleMsg("Array values: ")
+  for i = 1, #arr do
+    reaper.ShowConsoleMsg(arr[i] .. " ")
+  end
+  reaper.ShowConsoleMsg("\n")
+end
 
 
+function copy_table(table)
+  local new_table = {}
+  for i = 1, #table do
+    new_table[i] = table[i]
+  end
+  return new_table
+end
+
+
+function has_value(table, val)
+  for index, value in ipairs(table) do
+    if value == val then
+        return true
+    end
+  end
+
+  return false
+end
+
+
+function get_filled_array(n, value)
+  local arr = {}
+  for i = 0, n-1, 1 do
+    arr[i+1] = value
+  end
+  return arr
+end
+
+
+-- Functions for exporting each configuration of learning tracks
 function part_only_singles(n, project_name, path, original_volumes, part_number, track_name)
   local zeros = get_filled_array(n, 0)
   set_pans(zeros)
 
   if track_name == nil then
+    local retval
     local track = reaper.GetTrack(0, part_number)
-    local retval, track_name = reaper.GetTrackName(track)
+    retval, track_name = reaper.GetTrackName(track)
   end
 
   local volumes = get_filled_array(n, 0)
@@ -41,101 +64,100 @@ function part_only_singles(n, project_name, path, original_volumes, part_number,
   export_track(export_file_name, path)
 
   reaper.ShowConsoleMsg("\n")
+
+  set_volumes(original_volumes)
+  set_pans(zeros)
 end
 
--- function panned_learning_tracks(n, project_name, path, part_position, volume_diff, original_volumes)
---   -- part position should be either -1 (left) or 1 (right)
 
---   for i = 0, n-1, 1 do
---     local track = reaper.GetTrack(0, i)
---     local retval, track_name = reaper.GetTrackName(track)
-    
---     for j = 0, n-1, 1 do
---       track = reaper.GetTrack(0, j)
-      
---       if i == j then -- double volume and hard pan target track
---         reaper.SetMediaTrackInfo_Value(track, "D_VOL", original_volumes[j+1]*volume_diff);
---         reaper.SetMediaTrackInfo_Value(track, "D_PAN", part_position);
---       else -- reset volume and hard pan in the other direction for all other tracks
---         reaper.SetMediaTrackInfo_Value(track, "D_VOL", original_volumes[j+1]);
---         reaper.SetMediaTrackInfo_Value(track, "D_PAN", -part_position);
---       end
---     end
-    
---     local export_file_name = "\\" .. project_name .. " - " .. track_name .. " Panned.mp3"
---     export_track(export_file_name, path)
---   end
---   reaper.ShowConsoleMsg("\n")
--- end
-
-function part_panned_singles(n, project_name, path, part_position, volume_diff, original_volumes, part_number, track_name)
-  -- part position should be either -1 (left) or 1 (right)
-
+function part_predominant_panned_singles(n, project_name, path, pan_position, volume_diff, original_volumes, part_number, track_name)
   if track_name == nil then
+    local retval
     local track = reaper.GetTrack(0, part_number)
-    local retval, track_name = reaper.GetTrackName(track)
+    retval, track_name = reaper.GetTrackName(track)
   end
+  part_predominant_singles(n, project_name, path, pan_position, volume_diff, original_volumes, part_number, track_name .. " Panned")
+end
 
-  volumes = copy_table(original_volumes)
 
-  pans = get_filled_array(n, -part_position)
+function part_predominant_mono_singles(n, project_name, path, volume_diff, original_volumes, part_number, track_name)
+  if track_name == nil then
+    local retval
+    local track = reaper.GetTrack(0, part_number)
+    retval, track_name = reaper.GetTrackName(track)
+  end
+  part_predominant_singles(n, project_name, path, 0, volume_diff, original_volumes, part_number, track_name .. " Predominant")
+end
+
+function part_predominant_singles(n, project_name, path, pan_position, volume_diff, original_volumes, part_number, track_name)
+  -- do not use directly, use part_predominant_panned_singles or part_predominant_mono_singles instead
+  local volumes = copy_table(original_volumes)
+
+  pans = get_filled_array(n, -pan_position)
   if type(part_number) == "table" then
     for i = 1, #part_number do
-      pans[part_number[i]+1] = part_position
+      pans[part_number[i]+1] = pan_position
+    end
+    for i = 1, n do
+      if not has_value(part_number, i-1) then
+        volumes[i] = original_volumes[i]/volume_diff
+      end
     end
   else
-    pans[part_number+1] = part_position
+    pans[part_number+1] = pan_position
+    for i = 1, n do
+      if not (i-1 == part_number) then
+        volumes[i] = original_volumes[i]/volume_diff
+      end
+    end
   end
+
+
+
 
   set_volumes(volumes)
   set_pans(pans)
 
-  local export_file_name = "\\" .. project_name .. " - " .. track_name .. " Panned.mp3"
+  local export_file_name = "\\" .. project_name .. " - " .. track_name .. ".mp3"
   export_track(export_file_name, path)
 
   reaper.ShowConsoleMsg("\n")
+
+  set_volumes(original_volumes)
+  local zeros = get_filled_array(n, 0)
+  set_pans(zeros)
 end
 
--- function part_missing_learning_tracks(n, project_name, path, pans, original_volumes)
---   set_pans(pans)
---   set_volumes(original_volumes)
-
---   for i = 0, n-1, 1 do
---     local track = reaper.GetTrack(0, i)
---     local retval, track_name = reaper.GetTrackName(track)
-    
---     set_volumes(original_volumes)
---     reaper.SetMediaTrackInfo_Value(track, "D_VOL", 0);
-    
---     local export_file_name = "\\" .. project_name .. " - " .. track_name .. " Missing.mp3"
---     export_track(export_file_name, path)
---   end
---   reaper.ShowConsoleMsg("\n")
--- end
 
 function part_missing_singles(n, project_name, path, pans, original_volumes, part_number)
   local part_exists = get_filled_array(n, 1)
   part_exists[part_number+1] = 0
-  full_mix_singles(n, project_name, path, pans, original_volumes, part_exists)
+
+  local track = reaper.GetTrack(0, part_number)
+  local retval, track_name = reaper.GetTrackName(track)
+
+  full_mix_singles(n, project_name, path, pans, original_volumes, part_exists, track_name .. " Missing")
 end
 
 
-function full_mix_singles(n, project_name, path, pans, original_volumes, part_exists)
+function full_mix_singles(n, project_name, path, pans, original_volumes, part_exists, track_name)
   local volumes = get_filled_array(n, 0)
-  for i=1, #original_volumes do
+  
+  for i=1, #volumes do
     volumes[i] = original_volumes[i]*part_exists[i]
   end
 
   set_volumes(volumes)
   set_pans(pans)
 
-  local track = reaper.GetTrack(0, part_number)
-  local retval, track_name = reaper.GetTrackName(track)
-
-  local export_file_name = "\\" .. project_name .. " - " .. track_name .. " Missing.mp3"
+  local export_file_name = "\\" .. project_name .. " - " .. track_name .. ".mp3"
   export_track(export_file_name, path)
 
   reaper.ShowConsoleMsg("\n")
+
+  set_volumes(original_volumes)
+  local zeros = get_filled_array(n, 0)
+  set_pans(zeros)
 end
 
 
@@ -146,58 +168,7 @@ function part_missing_all(n, project_name, path, pans, original_volumes)
 end
 
 
--- function rhythm_learning_tracks(n, project_name, path, original_volumes)
---   -- vp is n-1
---   -- bass is n-2
---   local bass_track = reaper.GetTrack(0,n-2)
---   local vp_track = reaper.GetTrack(0,n-1)
---   local retval, bt_name = reaper.GetTrackName(bass_track)
---   local retval, vpt_name = reaper.GetTrackName(vp_track)
-  
---   -- rhythm only track
---   reaper.SetMediaTrackInfo_Value(bass_track, "D_VOL", original_volumes[n-1]);
---   reaper.SetMediaTrackInfo_Value(vp_track, "D_VOL", original_volumes[n]);
---   reaper.SetMediaTrackInfo_Value(bass_track, "D_PAN", 0);
---   reaper.SetMediaTrackInfo_Value(vp_track, "D_PAN", 0);
---   for i = 0, n-3, 1 do
---     local track = reaper.GetTrack(0, i)
---     reaper.SetMediaTrackInfo_Value(track, "D_VOL", 0);
---   end
-  
---   local export_file_name = "\\" .. project_name .. " - Rhythm.mp3"
---   export_track(export_file_name, path)
-
---   -- rhythm panned
---   reaper.SetMediaTrackInfo_Value(bass_track, "D_VOL", 1.5*original_volumes[n-1]);
---   reaper.SetMediaTrackInfo_Value(vp_track, "D_VOL", 1.5*original_volumes[n]);
---   reaper.SetMediaTrackInfo_Value(bass_track, "D_PAN", -1);
---   reaper.SetMediaTrackInfo_Value(vp_track, "D_PAN", -1);
---   for i = 0, n-3, 1 do
---     local track = reaper.GetTrack(0, i)
---     reaper.SetMediaTrackInfo_Value(track, "D_VOL", original_volumes[i+1]);
---     reaper.SetMediaTrackInfo_Value(track, "D_PAN", 1);
---   end
-  
---   local export_file_name = "\\" .. project_name .. " - Rhythm Panned.mp3"
---   export_track(export_file_name, path)
---   reaper.ShowConsoleMsg("\n")
--- end
-
-
-function full_mix_learning_track(n, project_name, path, pans, original_volumes, volume_diff)
-  local master_track = reaper.GetMasterTrack()
-  local master_vol = reaper.GetMediaTrackInfo_Value(master_track, "D_VOL");
-  reaper.SetMediaTrackInfo_Value(master_track, "D_VOL", master_vol*volume_diff);
-
-  set_pans(pans)
-  set_volumes(original_volumes)
-  
-  local export_file_name = "\\" .. project_name .. " - Full Mix.mp3"
-  export_track(export_file_name, path)
-  reaper.ShowConsoleMsg("\n")
-end
-
-
+-- Helper functions for exporting learning tracks
 function get_positions(n, top_track_name, vp)
   -- Full mix
     -- Pan in a way that makes sure adjacent parts are separate (except for barbershop)
@@ -206,6 +177,8 @@ function get_positions(n, top_track_name, vp)
     -- For 5 part SATBB: Alto, Bass, Tenor, Sop, Bari
     -- For 4 part SATB: Alto, Bass, Sop, Tenor
     -- For barbershop: Bari, Bass, Lead, Tenor
+    -- For 3 part (assuming SAT): Tenor, Sop, Alto
+    -- For 2 part: Alto, Sop
   local pans
 
   if n == 6 then
@@ -227,6 +200,12 @@ function get_positions(n, top_track_name, vp)
       reaper.ShowConsoleMsg("Panning arrangement: 4 part SATB\n\n")
       pans = {3,1,4,2}
     end
+  elseif n == 3 then
+    reaper.ShowConsoleMsg("Panning arrangement: 3 part\n\n")
+    pans = {3,1,2}
+  elseif n == 2 then
+    reaper.ShowConsoleMsg("Panning arrangement: 2 part\n\n")
+    pans = {2,1}
   else
     for i = 1, n do
       pans[i] = 0
@@ -282,7 +261,6 @@ function export_all(n, project_name, path, second_bottom_track, export_parts_onl
   --   -- part_missing_singles(n, project_name, path, pans, original_volumes, i)
   --   -- part_panned_singles(n, project_name, path, hard_pan_position, hard_pan_volume, original_volumes, i)
   -- end
-  part_only_singles(n, project_name, path, original_volumes, {4,5}, "Rhythm")
 
   -- if export_parts_only then
   --   parts_only(n, project_name, path, original_volumes)
@@ -293,16 +271,22 @@ function export_all(n, project_name, path, second_bottom_track, export_parts_onl
   --   rhythm_learning_tracks(n, project_name, path, original_volumes)
   -- end
   -- full_mix_learning_track(n, project_name, path, pans, original_volumes, 0.7)
+
+    for part_number=0, n-1, 1 do
+      -- part_only_singles(n, project_name, path, original_volumes, part_number)
+      -- part_predominant_panned_singles(n, project_name, path, -1, 2, original_volumes, part_number) -- hard panned
+      part_predominant_mono_singles(n, project_name, path, 3, original_volumes, part_number) -- mono predominant
+      -- part_missing_singles(n, project_name, path, pans, original_volumes, part_number)
+    end
+    
+    -- part_only_singles(n, project_name, path, original_volumes, {4,5}, "Rhythm")
+    -- part_predominant_panned_singles(n, project_name, path, -1, 2, original_volumes, {4,5}, "Rhythm")
+    part_predominant_mono_singles(n, project_name, path, 2, original_volumes, {4,5}, "Rhythm")
+
+    -- full_mix_singles(n, project_name, path, pans, original_volumes, get_filled_array(n, 1), "Full mix")
 end
 
 
-function get_filled_array(n, value)
-  local arr = {}
-  for i = 0, n-1, 1 do
-    arr[i+1] = value
-  end
-  return arr
-end
 
 
 function get_current_pans(n)
@@ -344,34 +328,6 @@ function set_volumes(volumes)
   end
 end
 
-
-function print_volumes(volumes)
-  reaper.ShowConsoleMsg("Volumes: ")
-  for i = 1, #volumes do
-    reaper.ShowConsoleMsg(volumes[i] .. " ")
-  end
-  reaper.ShowConsoleMsg("\n")
-end
-
-
-function copy_table(table)
-  local new_table = {}
-  for i = 1, #table do
-    new_table[i] = table[i]
-  end
-  return new_table
-end
-
-
-function has_value(table, val)
-  for index, value in ipairs(table) do
-    if value == val then
-        return true
-    end
-  end
-
-  return false
-end
 
 
 function main()
