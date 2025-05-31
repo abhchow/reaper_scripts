@@ -288,7 +288,7 @@ function export_track(export_file_name, path)
 end
 
 
-function export_all(n, project_name, path, second_bottom_track, export_parts_only, vp, hard_pan_position, hard_pan_volume, original_volumes)
+function export_all(n, project_name, path, export_parts_only, vp, hard_pan_volume, predominant_volume, original_volumes)
   local top_track = reaper.GetTrack(0,0)
   local retval, top_track_name = reaper.GetTrackName(top_track)
   local positions = get_positions(n, top_track_name, vp)
@@ -296,14 +296,16 @@ function export_all(n, project_name, path, second_bottom_track, export_parts_onl
 
     for part_number=0, n-1, 1 do
       part_only_singles(n, project_name, path, original_volumes, part_number)
-      part_predominant_panned_singles(n, project_name, path, -1, 2, original_volumes, part_number) -- hard panned
-      part_predominant_mono_singles(n, project_name, path, 3, original_volumes, part_number) -- mono predominant
+      part_predominant_panned_singles(n, project_name, path, -1, hard_pan_volume, original_volumes, part_number) -- hard panned
+      part_predominant_mono_singles(n, project_name, path, predominant_volume, original_volumes, part_number) -- mono predominant
       part_missing_singles(n, project_name, path, pans, original_volumes, part_number)
     end
     
-    part_only_singles(n, project_name, path, original_volumes, {4,5}, "Rhythm")
-    part_predominant_panned_singles(n, project_name, path, -1, 2, original_volumes, {4,5}, "Rhythm")
-    part_predominant_mono_singles(n, project_name, path, 2, original_volumes, {4,5}, "Rhythm")
+    if vp then
+      part_only_singles(n, project_name, path, original_volumes, {4,5}, "Rhythm")
+      part_predominant_panned_singles(n, project_name, path, -1, hard_pan_volume, original_volumes, {4,5}, "Rhythm")
+      part_predominant_mono_singles(n, project_name, path, predominant_volume, original_volumes, {4,5}, "Rhythm")
+    end
 
     full_mix_singles(n, project_name, path, pans, original_volumes, get_filled_array(n, 1), "Full mix")
 end
@@ -323,6 +325,7 @@ function main()
   local vp = false
   local hard_pan_position = -1
   local hard_pan_volume = 2
+  local predominant_volume = 3
 
   local original_pans = get_current_pans(n)
   local original_volumes = get_current_volumes(n)
@@ -342,12 +345,12 @@ function main()
       vp = true
     end
     reaper.SetMediaTrackInfo_Value(bottom_track, "D_PAN", 0); -- no need to set metronome volume because we never touch it elsewhere
-    export_all(n-1, project_name, path, second_bottom_track, export_parts_only, vp, hard_pan_position, hard_pan_volume, original_volumes)
+    export_all(n-1, project_name, path, export_parts_only, vp, hard_pan_volume, predominant_volume, original_volumes)
   else
     if bottom_track_name == "VP" then
       vp = true
     end
-    export_all(n, project_name, path, second_bottom_track, export_parts_only, vp, hard_pan_position, hard_pan_volume, original_volumes)
+    export_all(n, project_name, path, export_parts_only, vp, hard_pan_volume, predominant_volume, original_volumes)
   end
 
   set_pans(original_pans)
