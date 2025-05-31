@@ -89,6 +89,7 @@ function part_predominant_mono_singles(n, project_name, path, volume_diff, origi
   part_predominant_singles(n, project_name, path, 0, volume_diff, original_volumes, part_number, track_name .. " Predominant")
 end
 
+
 function part_predominant_singles(n, project_name, path, pan_position, volume_diff, original_volumes, part_number, track_name)
   -- do not use directly, use part_predominant_panned_singles or part_predominant_mono_singles instead
   local volumes = copy_table(original_volumes)
@@ -111,9 +112,6 @@ function part_predominant_singles(n, project_name, path, pan_position, volume_di
       end
     end
   end
-
-
-
 
   set_volumes(volumes)
   set_pans(pans)
@@ -169,6 +167,46 @@ end
 
 
 -- Helper functions for exporting learning tracks
+function get_current_pans(n)
+  -- read pans of all parts and store them
+  local pans = {}
+  for i = 0, n-1, 1 do
+    local track = reaper.GetTrack(0, i)
+    pans[i+1] = reaper.GetMediaTrackInfo_Value(track, "D_PAN")
+  end
+  return pans
+end
+
+
+function set_pans(pans)
+  -- set pans of all parts
+  for i = 0, #pans-1 do
+    local track = reaper.GetTrack(0, i)
+    reaper.SetMediaTrackInfo_Value(track, "D_PAN", pans[i+1])
+  end
+end
+
+
+function get_current_volumes(n)
+  -- read volumes of all parts and store them
+  local volumes = {}
+  for i = 0, n-1, 1 do
+    local track = reaper.GetTrack(0, i)
+    volumes[i+1] = reaper.GetMediaTrackInfo_Value(track, "D_VOL")
+  end
+  return volumes
+end
+
+
+function set_volumes(volumes)
+  -- set volumes of all parts
+  for i = 0, #volumes-1 do
+    local track = reaper.GetTrack(0, i)
+    reaper.SetMediaTrackInfo_Value(track, "D_VOL", volumes[i+1])
+  end
+end
+
+
 function get_positions(n, top_track_name, vp)
   -- Full mix
     -- Pan in a way that makes sure adjacent parts are separate (except for barbershop)
@@ -256,78 +294,19 @@ function export_all(n, project_name, path, second_bottom_track, export_parts_onl
   local positions = get_positions(n, top_track_name, vp)
   local pans = positions_to_pans(positions, 0.6) -- overwrite this to customise
 
-  -- for i = 0, n-1, 1 do
-  --   -- part_only_singles(n, project_name, path, original_volumes, i)
-  --   -- part_missing_singles(n, project_name, path, pans, original_volumes, i)
-  --   -- part_panned_singles(n, project_name, path, hard_pan_position, hard_pan_volume, original_volumes, i)
-  -- end
-
-  -- if export_parts_only then
-  --   parts_only(n, project_name, path, original_volumes)
-  -- end
-  -- panned_learning_tracks(n, project_name, path, hard_pan_position, hard_pan_volume, original_volumes)
-  -- part_missing_learning_tracks(n, project_name, path, pans, original_volumes)
-  -- if vp then
-  --   rhythm_learning_tracks(n, project_name, path, original_volumes)
-  -- end
-  -- full_mix_learning_track(n, project_name, path, pans, original_volumes, 0.7)
-
     for part_number=0, n-1, 1 do
-      -- part_only_singles(n, project_name, path, original_volumes, part_number)
-      -- part_predominant_panned_singles(n, project_name, path, -1, 2, original_volumes, part_number) -- hard panned
+      part_only_singles(n, project_name, path, original_volumes, part_number)
+      part_predominant_panned_singles(n, project_name, path, -1, 2, original_volumes, part_number) -- hard panned
       part_predominant_mono_singles(n, project_name, path, 3, original_volumes, part_number) -- mono predominant
-      -- part_missing_singles(n, project_name, path, pans, original_volumes, part_number)
+      part_missing_singles(n, project_name, path, pans, original_volumes, part_number)
     end
     
-    -- part_only_singles(n, project_name, path, original_volumes, {4,5}, "Rhythm")
-    -- part_predominant_panned_singles(n, project_name, path, -1, 2, original_volumes, {4,5}, "Rhythm")
+    part_only_singles(n, project_name, path, original_volumes, {4,5}, "Rhythm")
+    part_predominant_panned_singles(n, project_name, path, -1, 2, original_volumes, {4,5}, "Rhythm")
     part_predominant_mono_singles(n, project_name, path, 2, original_volumes, {4,5}, "Rhythm")
 
-    -- full_mix_singles(n, project_name, path, pans, original_volumes, get_filled_array(n, 1), "Full mix")
+    full_mix_singles(n, project_name, path, pans, original_volumes, get_filled_array(n, 1), "Full mix")
 end
-
-
-
-
-function get_current_pans(n)
-  -- read pans of all parts and store them
-  local pans = {}
-  for i = 0, n-1, 1 do
-    local track = reaper.GetTrack(0, i)
-    pans[i+1] = reaper.GetMediaTrackInfo_Value(track, "D_PAN")
-  end
-  return pans
-end
-
-
-function set_pans(pans)
-  -- set pans of all parts
-  for i = 0, #pans-1 do
-    local track = reaper.GetTrack(0, i)
-    reaper.SetMediaTrackInfo_Value(track, "D_PAN", pans[i+1])
-  end
-end
-
-
-function get_current_volumes(n)
-  -- read volumes of all parts and store them
-  local volumes = {}
-  for i = 0, n-1, 1 do
-    local track = reaper.GetTrack(0, i)
-    volumes[i+1] = reaper.GetMediaTrackInfo_Value(track, "D_VOL")
-  end
-  return volumes
-end
-
-
-function set_volumes(volumes)
-  -- set volumes of all parts
-  for i = 0, #volumes-1 do
-    local track = reaper.GetTrack(0, i)
-    reaper.SetMediaTrackInfo_Value(track, "D_VOL", volumes[i+1])
-  end
-end
-
 
 
 function main()
