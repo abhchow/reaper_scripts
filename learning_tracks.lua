@@ -1,43 +1,6 @@
 dofile(reaper.GetResourcePath().."/UserPlugins/ultraschall_api.lua")
-
--- functions that should really be built into lua
-function print_array(arr)
-  reaper.ShowConsoleMsg("Array values: ")
-  for i = 1, #arr do
-    reaper.ShowConsoleMsg(arr[i] .. " ")
-  end
-  reaper.ShowConsoleMsg("\n")
-end
-
-
-function copy_table(table)
-  local new_table = {}
-  for i = 1, #table do
-    new_table[i] = table[i]
-  end
-  return new_table
-end
-
-
-function has_value(table, val)
-  for index, value in ipairs(table) do
-    if value == val then
-        return true
-    end
-  end
-
-  return false
-end
-
-
-function get_filled_array(n, value)
-  local arr = {}
-  for i = 0, n-1, 1 do
-    arr[i+1] = value
-  end
-  return arr
-end
-
+dofile(reaper.GetResourcePath().."/Scripts/array_functions.lua")
+dofile(reaper.GetResourcePath().."/Scripts/pan.lua")
 
 -- Functions for exporting each configuration of learning tracks
 function part_only_singles(n, project_name, path, original_volumes, part_number, track_name, file_number)
@@ -189,15 +152,6 @@ function get_current_pans(n)
 end
 
 
-function set_pans(pans)
-  -- set pans of all parts
-  for i = 0, #pans-1 do
-    local track = reaper.GetTrack(0, i)
-    reaper.SetMediaTrackInfo_Value(track, "D_PAN", pans[i+1])
-  end
-end
-
-
 function get_current_volumes(n)
   -- read volumes of all parts and store them
   local volumes = {}
@@ -215,70 +169,6 @@ function set_volumes(volumes)
     local track = reaper.GetTrack(0, i)
     reaper.SetMediaTrackInfo_Value(track, "D_VOL", volumes[i+1])
   end
-end
-
-
-function get_positions(n, top_track_name, vp)
-  -- Full mix
-    -- Pan in a way that makes sure adjacent parts are separate (except for barbershop)
-    -- For 6 part SATBB+VP: Alto, Bass, Tenor/VP, Sop, Bari
-    -- For 5 part SATB+VP: Alto, Bass, VP, Sop, Tenor
-    -- For 5 part SATBB: Alto, Bass, Tenor, Sop, Bari
-    -- For 4 part SATB: Alto, Bass, Sop, Tenor
-    -- For barbershop: Bari, Bass, Lead, Tenor
-    -- For 3 part (assuming SAT): Tenor, Sop, Alto
-    -- For 2 part: Alto, Sop
-  local pans
-
-  if n == 6 then
-    reaper.ShowConsoleMsg("Panning arrangement: 6 part SATBB+VP\n\n")
-    pans = {4,1,3,5,2,3}
-  elseif n == 5 then
-    if vp then
-      reaper.ShowConsoleMsg("Panning arrangement: 5 part SATB+VP\n\n")
-      pans = {4,1,5,2,3}
-    else
-      reaper.ShowConsoleMsg("Panning arrangement: 5 part SATBB\n\n")
-      pans = {4,1,3,5,2}
-    end
-  elseif n == 4 then
-    if top_track_name == "Tenor" then --barbershop
-      reaper.ShowConsoleMsg("Panning arrangement: 4 part barbershop\n\n")
-      pans = {4,3,1,2}
-    else
-      reaper.ShowConsoleMsg("Panning arrangement: 4 part SATB\n\n")
-      pans = {3,1,4,2}
-    end
-  elseif n == 3 then
-    reaper.ShowConsoleMsg("Panning arrangement: 3 part\n\n")
-    pans = {3,1,2}
-  elseif n == 2 then
-    reaper.ShowConsoleMsg("Panning arrangement: 2 part\n\n")
-    pans = {2,1}
-  else
-    for i = 1, n do
-      pans[i] = 0
-    end
-  end
-
-  return pans
-end
-
-
-function positions_to_pans(positions, width)
-  -- width is a minimum of 0 (mono) and a maximum of 1 (furthest parts are hard panned)
-
-  local pans = {}
-
-  local positions_max = math.max(table.unpack(positions))
-  local positions_min = math.min(table.unpack(positions))
-  local diff = positions_max - positions_min
-
-  for i = 1, #positions do
-    pans[i] = ((positions[i] - positions_min) / diff * 2 - 1) * width
-  end
-
-  return pans  
 end
 
 
@@ -321,9 +211,9 @@ function export_all(n, project_name, path, export_parts_only, vp, hard_pan_volum
     end
     
     if vp then
-      file_number = part_only_singles(n, project_name, path, original_volumes, {4,5}, "Rhythm", file_number)
-      file_number = part_predominant_panned_singles(n, project_name, path, -1, hard_pan_volume, original_volumes, {4,5}, "Rhythm", file_number)
-      file_number = part_predominant_mono_singles(n, project_name, path, predominant_volume, original_volumes, {4,5}, "Rhythm", file_number)
+      file_number = part_only_singles(n, project_name, path, original_volumes, {n-1, n-2}, "Rhythm", file_number)
+      file_number = part_predominant_panned_singles(n, project_name, path, -1, hard_pan_volume, original_volumes, {n-1, n-2}, "Rhythm", file_number)
+      file_number = part_predominant_mono_singles(n, project_name, path, predominant_volume, original_volumes, {n-1, n-2}, "Rhythm", file_number)
     end
 end
 
@@ -340,6 +230,11 @@ function main()
   local second_bottom_track = reaper.GetTrack(0,n-2)
   local retval, second_bottom_track_name = reaper.GetTrackName(second_bottom_track)
   local vp = false
+  local metronome = false
+  if bottom_track_name == "Metronome" or bottom_track_name == "Click" then
+    metronome = true
+  end
+
   local hard_pan_position = -1
   local hard_pan_volume = 2
   local predominant_volume = 3
@@ -357,7 +252,7 @@ function main()
   end
   reaper.ShowConsoleMsg("\n")
 
-  if bottom_track_name == "Metronome" or bottom_track_name == "Click" then
+  if metronome then
     if second_bottom_track_name == "VP" then
       vp = true
     end
@@ -376,12 +271,3 @@ end
 
 main()
 
---  TODO: Change export_track to export to a lower quality mp3
---  TODO: Clean up the README, make sure all features are documented, make it easy to read for someone who doesn't know programming
---  TODO: Refactor Put all of the customisable values in one spot (YAML?)
---  TODO: Detect clipping in export, delete the clipped track and re-export at a lower volume
---  TODO: Build a GUI to turn this into a rehearsal tool
---    TODO: Options to select a custom panning arrangement for full mix and part missing tracks
---    TODO: Options to select custom combinations of different parts present, not just Bass and VP
---      TODO: Refactoring the code to export all the tracks for each part might make this easier
---            ie, export all  tracks for Sop, then all tracks for Alto etc, then all combinations, Bass+VP, plus whatever else is custom defined

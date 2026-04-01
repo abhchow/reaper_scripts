@@ -1,0 +1,9 @@
+- Change export_track to export to a lower quality mp3
+- Clean up the README, make sure all features are documented, make it easy to read forsomeone who doesn't know programming
+- Refactor Put all of the customisable values in one spot (YAML?)
+- Detect clipping in export, delete the clipped track and re-export at a lower volume
+- Build a GUI to turn this into a rehearsal tool
+  - Options to select a custom panning arrangement for full mix and part missing tracks
+  - Options to select custom combinations of different parts present, not just Bass and VP
+    - Refactoring the code to export all the tracks for each part might make this easier
+    - ie, export all  tracks for Sop, then all tracks for Alto etc, then all combinations, Bass+VP, plus whatever else is custom defined
