@@ -1,10 +1,11 @@
 dofile(reaper.GetResourcePath().."/UserPlugins/ultraschall_api.lua")
 local pan = dofile(reaper.GetResourcePath().."/Scripts/src/utils/pan.lua")
+local arr_utils = dofile(reaper.GetResourcePath().."/Scripts/src/utils/arr_utils.lua")
 
 -- Functions for exporting each configuration of learning tracks
 function part_only_singles(n, project_name, path, original_volumes, part_number, track_name, file_number)
-  local zeros = get_filled_array(n, 0)
-  set_pans(zeros)
+  local zeros = arr_utils.get_filled_array(n, 0)
+  pan.set_pans(zeros)
 
   if track_name == nil then
     local retval
@@ -12,7 +13,7 @@ function part_only_singles(n, project_name, path, original_volumes, part_number,
     retval, track_name = reaper.GetTrackName(track)
   end
 
-  local volumes = get_filled_array(n, 0)
+  local volumes = arr_utils.get_filled_array(n, 0)
   if type(part_number) == "table" then
     for i = 1, #part_number do
       volumes[part_number[i]+1] = original_volumes[part_number[i]+1]
@@ -28,7 +29,7 @@ function part_only_singles(n, project_name, path, original_volumes, part_number,
   reaper.ShowConsoleMsg("\n")
 
   set_volumes(original_volumes)
-  set_pans(zeros)
+  pan.set_pans(zeros)
 
   if file_number == nil then
     return nil
@@ -60,15 +61,15 @@ end
 
 function part_predominant_singles(n, project_name, path, pan_position, volume_diff, original_volumes, part_number, track_name, file_number)
   -- do not use directly, use part_predominant_panned_singles or part_predominant_mono_singles instead
-  local volumes = copy_table(original_volumes)
+  local volumes = arr_utils.copy_table(original_volumes)
 
-  pans = get_filled_array(n, -pan_position)
+  pans = arr_utils.get_filled_array(n, -pan_position)
   if type(part_number) == "table" then
     for i = 1, #part_number do
       pans[part_number[i]+1] = pan_position
     end
     for i = 1, n do
-      if not has_value(part_number, i-1) then
+      if not arr_utils.has_value(part_number, i-1) then
         volumes[i] = original_volumes[i]/volume_diff
       end
     end
@@ -82,7 +83,7 @@ function part_predominant_singles(n, project_name, path, pan_position, volume_di
   end
 
   set_volumes(volumes)
-  set_pans(pans)
+  pan.set_pans(pans)
 
   local export_file_name = project_name .. " - " .. track_name .. ".mp3"
   export_track(export_file_name, path, file_number)
@@ -90,8 +91,8 @@ function part_predominant_singles(n, project_name, path, pan_position, volume_di
   reaper.ShowConsoleMsg("\n")
 
   set_volumes(original_volumes)
-  local zeros = get_filled_array(n, 0)
-  set_pans(zeros)
+  local zeros = arr_utils.get_filled_array(n, 0)
+  pan.set_pans(zeros)
 
   if file_number == nil then
     return nil
@@ -102,7 +103,7 @@ end
 
 
 function part_missing_singles(n, project_name, path, pans, original_volumes, part_number, file_number)
-  local part_exists = get_filled_array(n, 1)
+  local part_exists = arr_utils.get_filled_array(n, 1)
   part_exists[part_number+1] = 0
 
   local track = reaper.GetTrack(0, part_number)
@@ -113,14 +114,14 @@ end
 
 
 function full_mix_singles(n, project_name, path, pans, original_volumes, part_exists, track_name, file_number)
-  local volumes = get_filled_array(n, 0)
+  local volumes = arr_utils.get_filled_array(n, 0)
   
   for i=1, #volumes do
     volumes[i] = original_volumes[i]*part_exists[i]
   end
 
   set_volumes(volumes)
-  set_pans(pans)
+  pan.set_pans(pans)
 
   local export_file_name = project_name .. " - " .. track_name .. ".mp3"
   export_track(export_file_name, path, file_number)
@@ -128,8 +129,8 @@ function full_mix_singles(n, project_name, path, pans, original_volumes, part_ex
   reaper.ShowConsoleMsg("\n")
 
   set_volumes(original_volumes)
-  local zeros = get_filled_array(n, 0)
-  set_pans(zeros)
+  local zeros = arr_utils.get_filled_array(n, 0)
+  pan.set_pans(zeros)
 
   if file_number == nil then
     return nil
@@ -196,11 +197,11 @@ end
 function export_all(n, project_name, path, export_parts_only, vp, hard_pan_volume, predominant_volume, original_volumes)
   local top_track = reaper.GetTrack(0,0)
   local retval, top_track_name = reaper.GetTrackName(top_track)
-  local positions = get_positions(n, top_track_name, vp)
-  local pans = positions_to_pans(positions, 0.6) -- overwrite this to customise
+  local positions = pan.get_positions(n, top_track_name, vp)
+  local pans = pan.positions_to_pans(positions, 0.6) -- overwrite this to customise
   local file_number = 1
   
-    file_number = full_mix_singles(n, project_name, path, pans, original_volumes, get_filled_array(n, 1), "Full mix", file_number)
+    file_number = full_mix_singles(n, project_name, path, pans, original_volumes, arr_utils.get_filled_array(n, 1), "Full mix", file_number)
 
     for part_number=0, n-1, 1 do
       file_number = part_only_singles(n, project_name, path, original_volumes, part_number, nil, file_number)
@@ -264,7 +265,7 @@ function main()
     export_all(n, project_name, path, export_parts_only, vp, hard_pan_volume, predominant_volume, original_volumes)
   end
 
-  set_pans(original_pans)
+  pan.set_pans(original_pans)
   set_volumes(original_volumes)
 end
 
