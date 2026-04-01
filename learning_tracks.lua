@@ -1,6 +1,5 @@
 dofile(reaper.GetResourcePath().."/UserPlugins/ultraschall_api.lua")
-dofile(reaper.GetResourcePath().."/Scripts/array_functions.lua")
-dofile(reaper.GetResourcePath().."/Scripts/pan.lua")
+local pan = dofile(reaper.GetResourcePath().."/Scripts/src/utils/pan.lua")
 
 -- Functions for exporting each configuration of learning tracks
 function part_only_singles(n, project_name, path, original_volumes, part_number, track_name, file_number)

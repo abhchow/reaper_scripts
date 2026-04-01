@@ -1,7 +1,8 @@
 dofile(reaper.GetResourcePath().."/UserPlugins/ultraschall_api.lua")
 
+local pan = {}
 
-function set_pans(pans)
+function pan.set_pans(pans)
   -- set pans of all parts
   for i = 0, #pans-1 do
     local track = reaper.GetTrack(0, i)
@@ -10,7 +11,7 @@ function set_pans(pans)
 end
 
 
-function get_positions(n, top_track_name, vp, print_console_msg)
+function pan.get_positions(n, top_track_name, vp, print_console_msg)
   -- Full mix
     -- Pan in a way that makes sure adjacent parts are separate (except for barbershop)
     -- For 7 part SATTBB+VP: idk i haven't worked this out
@@ -69,7 +70,7 @@ function get_positions(n, top_track_name, vp, print_console_msg)
 end
 
 
-function positions_to_pans(positions, width)
+function pan.positions_to_pans(positions, width)
   -- width is a minimum of 0 (mono) and a maximum of 1 (furthest parts are hard panned)
 
   local pans = {}
@@ -86,7 +87,7 @@ function positions_to_pans(positions, width)
 end
 
 
-function main()
+function pan.set_pan_arrangement(width)
   local n = reaper.GetNumTracks()
 
   local bottom_track = reaper.GetTrack(0,n-1)
@@ -108,9 +109,9 @@ function main()
     n_to_pan = n-1
   end
 
-  local positions = get_positions(n_to_pan, top_track_name, vp)
-  local pans = positions_to_pans(positions, 0.6) -- overwrite this to customise
-  set_pans(pans)
+  local positions = pan.get_positions(n_to_pan, top_track_name, vp)
+  local pans = pan.positions_to_pans(positions, width) -- overwrite this to customise
+  pan.set_pans(pans)
 end
 
-main()
+return pan
