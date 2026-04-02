@@ -5,15 +5,12 @@ local daw_state = dofile(reaper.GetResourcePath().."/Scripts/src/utils/daw_state
 
 -- Functions for exporting each configuration of learning tracks
 function part_only_singles(n, project_name, path, original_volumes, part_number, track_name, file_number)
-  local zeros = arr_utils.get_filled_array(n, 0)
-  daw_state.set_pans(zeros)
-
   if track_name == nil then
     local retval
     local track = reaper.GetTrack(0, part_number)
     retval, track_name = reaper.GetTrackName(track)
   end
-
+  
   local volumes = arr_utils.get_filled_array(n, 0)
   if type(part_number) == "table" then
     for i = 1, #part_number do
@@ -22,12 +19,15 @@ function part_only_singles(n, project_name, path, original_volumes, part_number,
   else
     volumes[part_number+1] = original_volumes[part_number+1]
   end
+  
+  local zeros = arr_utils.get_filled_array(n, 0)
+  daw_state.set_pans(zeros)
   daw_state.set_volumes(volumes)
   
   export_track(project_name, track_name, path, file_number)
 
-  daw_state.set_volumes(original_volumes)
   daw_state.set_pans(zeros)
+  daw_state.set_volumes(original_volumes)
 
   if file_number == nil then
     return nil
@@ -59,6 +59,7 @@ end
 
 function part_predominant_singles(n, project_name, path, pan_position, volume_diff, original_volumes, part_number, track_name, file_number)
   -- do not use directly, use part_predominant_panned_singles or part_predominant_mono_singles instead
+  
   local volumes = arr_utils.copy_table(original_volumes)
 
   pans = arr_utils.get_filled_array(n, -pan_position)
@@ -80,14 +81,14 @@ function part_predominant_singles(n, project_name, path, pan_position, volume_di
     end
   end
 
-  daw_state.set_volumes(volumes)
   daw_state.set_pans(pans)
+  daw_state.set_volumes(volumes)
 
   export_track(project_name, track_name, path, file_number)
 
-  daw_state.set_volumes(original_volumes)
   local zeros = arr_utils.get_filled_array(n, 0)
   daw_state.set_pans(zeros)
+  daw_state.set_volumes(original_volumes)
 
   if file_number == nil then
     return nil
@@ -115,14 +116,14 @@ function full_mix_singles(n, project_name, path, pans, original_volumes, part_ex
     volumes[i] = original_volumes[i]*part_exists[i]
   end
 
-  daw_state.set_volumes(volumes)
   daw_state.set_pans(pans)
+  daw_state.set_volumes(volumes)
 
   export_track(project_name, track_name, path, file_number)
 
-  daw_state.set_volumes(original_volumes)
   local zeros = arr_utils.get_filled_array(n, 0)
   daw_state.set_pans(zeros)
+  daw_state.set_volumes(original_volumes)
 
   if file_number == nil then
     return nil
