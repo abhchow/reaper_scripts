@@ -1,11 +1,12 @@
 dofile(reaper.GetResourcePath().."/UserPlugins/ultraschall_api.lua")
 local pan = dofile(reaper.GetResourcePath().."/Scripts/src/utils/pan.lua")
 local arr_utils = dofile(reaper.GetResourcePath().."/Scripts/src/utils/arr_utils.lua")
+local daw_state = dofile(reaper.GetResourcePath().."/Scripts/src/utils/daw_state.lua")
 
 -- Functions for exporting each configuration of learning tracks
 function part_only_singles(n, project_name, path, original_volumes, part_number, track_name, file_number)
   local zeros = arr_utils.get_filled_array(n, 0)
-  pan.set_pans(zeros)
+  daw_state.set_pans(zeros)
 
   if track_name == nil then
     local retval
@@ -21,15 +22,15 @@ function part_only_singles(n, project_name, path, original_volumes, part_number,
   else
     volumes[part_number+1] = original_volumes[part_number+1]
   end
-  set_volumes(volumes)
+  daw_state.set_volumes(volumes)
   
   local export_file_name = project_name .. " - " .. track_name .. ".mp3"
   export_track(export_file_name, path, file_number)
 
   reaper.ShowConsoleMsg("\n")
 
-  set_volumes(original_volumes)
-  pan.set_pans(zeros)
+  daw_state.set_volumes(original_volumes)
+  daw_state.set_pans(zeros)
 
   if file_number == nil then
     return nil
@@ -82,17 +83,17 @@ function part_predominant_singles(n, project_name, path, pan_position, volume_di
     end
   end
 
-  set_volumes(volumes)
-  pan.set_pans(pans)
+  daw_state.set_volumes(volumes)
+  daw_state.set_pans(pans)
 
   local export_file_name = project_name .. " - " .. track_name .. ".mp3"
   export_track(export_file_name, path, file_number)
 
   reaper.ShowConsoleMsg("\n")
 
-  set_volumes(original_volumes)
+  daw_state.set_volumes(original_volumes)
   local zeros = arr_utils.get_filled_array(n, 0)
-  pan.set_pans(zeros)
+  daw_state.set_pans(zeros)
 
   if file_number == nil then
     return nil
@@ -120,54 +121,22 @@ function full_mix_singles(n, project_name, path, pans, original_volumes, part_ex
     volumes[i] = original_volumes[i]*part_exists[i]
   end
 
-  set_volumes(volumes)
-  pan.set_pans(pans)
+  daw_state.set_volumes(volumes)
+  daw_state.set_pans(pans)
 
   local export_file_name = project_name .. " - " .. track_name .. ".mp3"
   export_track(export_file_name, path, file_number)
 
   reaper.ShowConsoleMsg("\n")
 
-  set_volumes(original_volumes)
+  daw_state.set_volumes(original_volumes)
   local zeros = arr_utils.get_filled_array(n, 0)
-  pan.set_pans(zeros)
+  daw_state.set_pans(zeros)
 
   if file_number == nil then
     return nil
   else
     return file_number + 1
-  end
-end
-
-
--- Helper functions for exporting learning tracks
-function get_current_pans(n)
-  -- read pans of all parts and store them
-  local pans = {}
-  for i = 0, n-1, 1 do
-    local track = reaper.GetTrack(0, i)
-    pans[i+1] = reaper.GetMediaTrackInfo_Value(track, "D_PAN")
-  end
-  return pans
-end
-
-
-function get_current_volumes(n)
-  -- read volumes of all parts and store them
-  local volumes = {}
-  for i = 0, n-1, 1 do
-    local track = reaper.GetTrack(0, i)
-    volumes[i+1] = reaper.GetMediaTrackInfo_Value(track, "D_VOL")
-  end
-  return volumes
-end
-
-
-function set_volumes(volumes)
-  -- set volumes of all parts
-  for i = 0, #volumes-1 do
-    local track = reaper.GetTrack(0, i)
-    reaper.SetMediaTrackInfo_Value(track, "D_VOL", volumes[i+1])
   end
 end
 
@@ -239,8 +208,8 @@ function main()
   local hard_pan_volume = 2
   local predominant_volume = 3
 
-  local original_pans = get_current_pans(n)
-  local original_volumes = get_current_volumes(n)
+  local original_pans = daw_state.get_current_pans(n)
+  local original_volumes = daw_state.get_current_volumes(n)
   reaper.ShowConsoleMsg("Original pans: ") 
   for i = 1, n do
     reaper.ShowConsoleMsg(original_pans[i] .. " ")
@@ -265,8 +234,8 @@ function main()
     export_all(n, project_name, path, export_parts_only, vp, hard_pan_volume, predominant_volume, original_volumes)
   end
 
-  pan.set_pans(original_pans)
-  set_volumes(original_volumes)
+  daw_state.set_pans(original_pans)
+  daw_state.set_volumes(original_volumes)
 end
 
 main()

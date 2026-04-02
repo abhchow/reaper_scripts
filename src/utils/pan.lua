@@ -2,15 +2,6 @@ dofile(reaper.GetResourcePath().."/UserPlugins/ultraschall_api.lua")
 
 local pan = {}
 
-function pan.set_pans(pans)
-  -- set pans of all parts
-  for i = 0, #pans-1 do
-    local track = reaper.GetTrack(0, i)
-    reaper.SetMediaTrackInfo_Value(track, "D_PAN", pans[i+1])
-  end
-end
-
-
 function pan.get_positions(n, top_track_name, vp, print_console_msg)
   -- Full mix
     -- Pan in a way that makes sure adjacent parts are separate (except for barbershop)
@@ -111,7 +102,7 @@ function pan.set_pan_arrangement(width)
 
   local positions = pan.get_positions(n_to_pan, top_track_name, vp)
   local pans = pan.positions_to_pans(positions, width) -- overwrite this to customise
-  pan.set_pans(pans)
+  daw_state.set_pans(pans)
 end
 
 return pan
