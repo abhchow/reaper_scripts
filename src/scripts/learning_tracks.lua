@@ -24,10 +24,7 @@ function part_only_singles(n, project_name, path, original_volumes, part_number,
   end
   daw_state.set_volumes(volumes)
   
-  local export_file_name = project_name .. " - " .. track_name .. ".mp3"
-  export_track(export_file_name, path, file_number)
-
-  reaper.ShowConsoleMsg("\n")
+  export_track(project_name, track_name, path, file_number)
 
   daw_state.set_volumes(original_volumes)
   daw_state.set_pans(zeros)
@@ -86,10 +83,7 @@ function part_predominant_singles(n, project_name, path, pan_position, volume_di
   daw_state.set_volumes(volumes)
   daw_state.set_pans(pans)
 
-  local export_file_name = project_name .. " - " .. track_name .. ".mp3"
-  export_track(export_file_name, path, file_number)
-
-  reaper.ShowConsoleMsg("\n")
+  export_track(project_name, track_name, path, file_number)
 
   daw_state.set_volumes(original_volumes)
   local zeros = arr_utils.get_filled_array(n, 0)
@@ -124,10 +118,7 @@ function full_mix_singles(n, project_name, path, pans, original_volumes, part_ex
   daw_state.set_volumes(volumes)
   daw_state.set_pans(pans)
 
-  local export_file_name = project_name .. " - " .. track_name .. ".mp3"
-  export_track(export_file_name, path, file_number)
-
-  reaper.ShowConsoleMsg("\n")
+  export_track(project_name, track_name, path, file_number)
 
   daw_state.set_volumes(original_volumes)
   local zeros = arr_utils.get_filled_array(n, 0)
@@ -141,10 +132,13 @@ function full_mix_singles(n, project_name, path, pans, original_volumes, part_ex
 end
 
 
-function export_track(export_file_name, path, file_number)
+function export_track(project_name, track_name, path, file_number)
+  local export_file_name = project_name .. " - " .. track_name .. ".mp3"
   local retval = ultraschall.SetProject_RenderFilename(nil, path .. export_file_name)
   local render_cfg_string = ultraschall.CreateRenderCFG_MP3MaxQuality()
   
+  local export_file_name = project_name .. " - " .. track_name .. ".mp3"
+
   local file_number_string = ""
   if not (file_number == nil) then
     file_number_string = file_number .. ". "
@@ -159,7 +153,7 @@ function export_track(export_file_name, path, file_number)
   else
     displayMessage = "Failed to export " .. path .. export_file_name .. "\n"
   end
-  reaper.ShowConsoleMsg(displayMessage)
+  reaper.ShowConsoleMsg(displayMessage .. "\n")
 end
 
 
