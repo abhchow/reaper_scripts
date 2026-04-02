@@ -7,3 +7,4 @@
   - Options to select custom combinations of different parts present, not just Bass and VP
     - Refactoring the code to export all the tracks for each part might make this easier
     - ie, export all  tracks for Sop, then all tracks for Alto etc, then all combinations, Bass+VP, plus whatever else is custom defined
+- The data in `pan.get_positions` should live in a constants file
