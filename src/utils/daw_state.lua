@@ -40,3 +40,5 @@ function daw_state.set_volumes(volumes)
     reaper.SetMediaTrackInfo_Value(track, "D_VOL", volumes[i+1])
   end
 end
+
+return daw_state
