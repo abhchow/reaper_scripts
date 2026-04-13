@@ -1,4 +1,5 @@
 dofile(reaper.GetResourcePath().."/UserPlugins/ultraschall_api.lua")
+local arr_utils = dofile(reaper.GetResourcePath().."/Scripts/src/utils/arr_utils.lua")
 
 local pan = {}
 
@@ -70,8 +71,12 @@ function pan.positions_to_pans(positions, width)
   local positions_min = math.min(table.unpack(positions))
   local diff = positions_max - positions_min
 
-  for i = 1, #positions do
-    pans[i] = ((positions[i] - positions_min) / diff * 2 - 1) * width
+  if diff == 0 then
+    pans = arr_utils.get_filled_array(#positions, 0)    
+  else
+    for i = 1, #positions do
+      pans[i] = ((positions[i] - positions_min) / diff * 2 - 1) * width
+    end
   end
 
   return pans  
