@@ -111,7 +111,7 @@ end
 
 function full_mix_singles(n, project_name, path, pans, original_volumes, part_exists, track_name, file_number)
   local volumes = arr_utils.get_filled_array(n, 0)
-  
+
   for i=1, #volumes do
     volumes[i] = original_volumes[i]*part_exists[i]
   end
@@ -140,19 +140,19 @@ function export_track(project_name, track_name, path, file_number)
   
   local export_file_name = project_name .. " - " .. track_name .. ".mp3"
 
-  local file_number_string = ""
+  local export_file_name_with_number = ""
   if not (file_number == nil) then
-    file_number_string = file_number .. ". "
+    export_file_name_with_number = file_number .. ". " .. export_file_name
   end
 
   local retval, renderfilecount, MediaItemStateChunkArray, Filearray
-    = ultraschall.RenderProject(nil, path .. file_number_string .. export_file_name, 0, -1, false, false, false, render_cfg_string, nil)
+    = ultraschall.RenderProject(nil, path .. export_file_name_with_number, 0, -1, false, false, false, render_cfg_string, nil)
     
   local displayMessage
   if retval == 0 then
-    displayMessage = "Successfully exported " .. path .. export_file_name .. "\n"
+    displayMessage = "Successfully exported " .. path .. export_file_name_with_number .. "\n"
   else
-    displayMessage = "Failed to export " .. path .. export_file_name .. "\n"
+    displayMessage = "Failed to export " .. path .. export_file_name_with_number .. "\n"
   end
   reaper.ShowConsoleMsg(displayMessage .. "\n")
 end
@@ -164,21 +164,21 @@ function export_all(n, project_name, path, export_parts_only, vp, hard_pan_volum
   local positions = pan.get_positions(n, top_track_name, vp)
   local pans = pan.positions_to_pans(positions, 0.6) -- overwrite this to customise
   local file_number = 1
-  
-    file_number = full_mix_singles(n, project_name, path, pans, original_volumes, arr_utils.get_filled_array(n, 1), "Full mix", file_number)
 
-    for part_number=0, n-1, 1 do
-      file_number = part_only_singles(n, project_name, path, original_volumes, part_number, nil, file_number)
-      file_number = part_predominant_panned_singles(n, project_name, path, -1, hard_pan_volume, original_volumes, part_number, nil, file_number) -- hard panned
-      file_number = part_predominant_mono_singles(n, project_name, path, predominant_volume, original_volumes, part_number, nil, file_number) -- mono predominant
-      file_number = part_missing_singles(n, project_name, path, pans, original_volumes, part_number, file_number)
-    end
-    
-    if vp then
-      file_number = part_only_singles(n, project_name, path, original_volumes, {n-1, n-2}, "Rhythm", file_number)
-      file_number = part_predominant_panned_singles(n, project_name, path, -1, hard_pan_volume, original_volumes, {n-1, n-2}, "Rhythm", file_number)
-      file_number = part_predominant_mono_singles(n, project_name, path, predominant_volume, original_volumes, {n-1, n-2}, "Rhythm", file_number)
-    end
+  file_number = full_mix_singles(n, project_name, path, pans, original_volumes, arr_utils.get_filled_array(n, 1), "Full mix", file_number)
+
+  for part_number=0, n-1, 1 do
+    file_number = part_only_singles(n, project_name, path, original_volumes, part_number, nil, file_number)
+    file_number = part_predominant_panned_singles(n, project_name, path, -1, hard_pan_volume, original_volumes, part_number, nil, file_number) -- hard panned
+    file_number = part_predominant_mono_singles(n, project_name, path, predominant_volume, original_volumes, part_number, nil, file_number) -- mono predominant
+    file_number = part_missing_singles(n, project_name, path, pans, original_volumes, part_number, file_number)
+  end
+  
+  if vp then
+    file_number = part_only_singles(n, project_name, path, original_volumes, {n-1, n-2}, "Rhythm", file_number)
+    file_number = part_predominant_panned_singles(n, project_name, path, -1, hard_pan_volume, original_volumes, {n-1, n-2}, "Rhythm", file_number)
+    file_number = part_predominant_mono_singles(n, project_name, path, predominant_volume, original_volumes, {n-1, n-2}, "Rhythm", file_number)
+  end
 end
 
 
@@ -205,16 +205,8 @@ function main()
 
   local original_pans = daw_state.get_current_pans(n)
   local original_volumes = daw_state.get_current_volumes(n)
-  reaper.ShowConsoleMsg("Original pans: ") 
-  for i = 1, n do
-    reaper.ShowConsoleMsg(original_pans[i] .. " ")
-  end
-  reaper.ShowConsoleMsg("\n")
-  reaper.ShowConsoleMsg("Original volumes: ")
-  for i = 1, n do
-    reaper.ShowConsoleMsg(original_volumes[i] .. " ")
-  end
-  reaper.ShowConsoleMsg("\n")
+  arr_utils.print_array(original_pans, "Original pans")
+  arr_utils.print_array(original_volumes, "Original volumes")
 
   if metronome then
     if second_bottom_track_name == "VP" then

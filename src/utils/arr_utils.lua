@@ -1,7 +1,11 @@
 local arr_utils = {}
 
-function arr_utils.print_array(arr)
-  reaper.ShowConsoleMsg("Array values: ")
+function arr_utils.print_array(arr, msg)
+  if msg then
+    reaper.ShowConsoleMsg(msg .. ": ")
+  else
+    reaper.ShowConsoleMsg("Array values: ")
+  end
   for i = 1, #arr do
     reaper.ShowConsoleMsg(arr[i] .. " ")
   end
