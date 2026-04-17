@@ -1,5 +1,12 @@
-hardPanVolume: 2
-predominantVolume: 3
-test_hello: 1
+hard_pan_volume: 2
+predominant_volume: 3
+default_pan_width: 0.6
+panned_track_position: -1
 
-metronome: true
+export_full_mix: true
+export_individual_tracks: true
+export_part_missing_tracks: true
+export_part_panned_tracks: true
+export_part_predominant_tracks: true
+
+cancel_exports_after_failure: true
