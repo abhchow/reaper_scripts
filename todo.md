@@ -1,6 +1,5 @@
 - Change export_track to export to a lower quality mp3
 - Clean up the README, make sure all features are documented, make it easy to read forsomeone who doesn't know programming
-- Refactor Put all of the customisable values in one spot (YAML?)
 - Detect clipping in export, delete the clipped track and re-export at a lower volume
 - Build a GUI to turn this into a rehearsal tool
   - Options to select a custom panning arrangement for full mix and part missing tracks
