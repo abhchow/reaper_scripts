@@ -5,12 +5,9 @@ local daw_state = dofile(reaper.GetResourcePath().."/Scripts/src/utils/daw_state
 local file_io = dofile(reaper.GetResourcePath().."/Scripts/src/utils/file_io.lua")
 
 -- Functions for exporting each configuration of learning tracks
-function part_only_singles(n, project_name, path, original_volumes, part_number, track_name, file_number)
-  if track_name == nil then
-    local retval
-    local track = reaper.GetTrack(0, part_number)
-    retval, track_name = reaper.GetTrackName(track)
-  end
+function part_only_singles(n, project_name, path, original_volumes, part_number, file_number)
+  local track = reaper.GetTrack(0, part_number)
+  local retval, track_name = reaper.GetTrackName(track)
   
   local volumes = arr_utils.get_filled_array(n, 0)
   if type(part_number) == "table" then
@@ -24,36 +21,28 @@ function part_only_singles(n, project_name, path, original_volumes, part_number,
   local zeros = arr_utils.get_filled_array(n, 0)
   daw_state.set_pans(zeros)
   daw_state.set_volumes(volumes)
-  
+
   local export_succesful = export_track(project_name, track_name, path, file_number)
 
   daw_state.set_pans(zeros)
   daw_state.set_volumes(original_volumes)
 
-  if file_number == nil then
-    return nil, export_succesful
-  else
-    return file_number + 1, export_succesful
-  end
+  return export_succesful
 end
 
 
-function part_predominant_panned_singles(n, project_name, path, pan_position, volume_diff, original_volumes, part_number, track_name, file_number)
-  if track_name == nil then
-    local retval
-    local track = reaper.GetTrack(0, part_number)
-    retval, track_name = reaper.GetTrackName(track)
-  end
+function part_predominant_panned_singles(n, project_name, path, pan_position, volume_diff, original_volumes, part_number, file_number)
+  local track = reaper.GetTrack(0, part_number)
+  local retval, track_name = reaper.GetTrackName(track)
+
   return part_predominant_singles(n, project_name, path, pan_position, volume_diff, original_volumes, part_number, track_name .. " Panned", file_number)
 end
 
 
-function part_predominant_mono_singles(n, project_name, path, volume_diff, original_volumes, part_number, track_name, file_number)
-  if track_name == nil then
-    local retval
-    local track = reaper.GetTrack(0, part_number)
-    retval, track_name = reaper.GetTrackName(track)
-  end
+function part_predominant_mono_singles(n, project_name, path, volume_diff, original_volumes, part_number, file_number)
+  local track = reaper.GetTrack(0, part_number)
+  local retval, track_name = reaper.GetTrackName(track)
+
   return part_predominant_singles(n, project_name, path, 0, volume_diff, original_volumes, part_number, track_name .. " Predominant", file_number)
 end
 
@@ -63,7 +52,7 @@ function part_predominant_singles(n, project_name, path, pan_position, volume_di
   
   local volumes = arr_utils.copy_table(original_volumes)
 
-  pans = arr_utils.get_filled_array(n, -pan_position)
+  local pans = arr_utils.get_filled_array(n, -pan_position)
   if type(part_number) == "table" then
     for i = 1, #part_number do
       pans[part_number[i]+1] = pan_position
@@ -91,11 +80,7 @@ function part_predominant_singles(n, project_name, path, pan_position, volume_di
   daw_state.set_pans(zeros)
   daw_state.set_volumes(original_volumes)
 
-  if file_number == nil then
-    return nil, export_succesful
-  else
-    return file_number + 1, export_succesful
-  end
+  return export_succesful
 end
 
 
@@ -126,11 +111,7 @@ function full_mix_singles(n, project_name, path, pans, original_volumes, part_ex
   daw_state.set_pans(zeros)
   daw_state.set_volumes(original_volumes)
 
-  if file_number == nil then
-    return nil, export_succesful
-  else
-    return file_number + 1, export_succesful
-  end
+  return export_succesful
 end
 
 
@@ -169,12 +150,12 @@ function export_all(n, project_name, path, vp, original_volumes)
   local default_pan_width = tonumber(settings.default_pan_width)
   local panned_track_position = tonumber(settings.panned_track_position)
 
-  local export_full_mix = to_boolean(settings.export_full_mix)
-  local export_individual_tracks = to_boolean(settings.export_individual_tracks)
-  local export_part_missing_tracks = to_boolean(settings.export_part_missing_tracks)
-  local export_part_panned_tracks = to_boolean(settings.export_part_panned_tracks)
-  local export_part_predominant_tracks = to_boolean(settings.export_part_predominant_tracks)
-  local cancel_exports_after_failure = to_boolean(settings.cancel_exports_after_failure)
+  local export_full_mix = file_io.read_bool(settings.export_full_mix)
+  local export_individual_tracks = file_io.read_bool(settings.export_individual_tracks)
+  local export_part_missing_tracks = file_io.read_bool(settings.export_part_missing_tracks)
+  local export_part_panned_tracks = file_io.read_bool(settings.export_part_panned_tracks)
+  local export_part_predominant_tracks = file_io.read_bool(settings.export_part_predominant_tracks)
+  local cancel_exports_after_failure = file_io.read_bool(settings.cancel_exports_after_failure)
 
   local top_track = reaper.GetTrack(0,0)
   local retval, top_track_name = reaper.GetTrackName(top_track)
@@ -182,53 +163,54 @@ function export_all(n, project_name, path, vp, original_volumes)
   local pans = pan.positions_to_pans(positions, default_pan_width)
   local file_number = 1
 
+  export_queue = {}
+  
   if export_full_mix then
-    file_number, export_succesful = full_mix_singles(n, project_name, path, pans, original_volumes, arr_utils.get_filled_array(n, 1), "Full mix", file_number)
-    if not export_succesful then return end
+    table.insert(export_queue, {full_mix_singles, table.pack(n, project_name, path, pans, original_volumes, arr_utils.get_filled_array(n, 1), "Full mix")})
   end
 
   for part_number=0, n-1, 1 do
     if export_individual_tracks then
-      file_number, export_succesful = part_only_singles(n, project_name, path, original_volumes, part_number, nil, file_number)
-      if not export_succesful then return end
+      table.insert(export_queue, {part_only_singles, table.pack(n, project_name, path, original_volumes, part_number)})
     end
     if export_part_panned_tracks then
-      file_number, export_succesful = part_predominant_panned_singles(n, project_name, path, panned_track_position, hard_pan_volume, original_volumes, part_number, nil, file_number) -- hard panned
-      if not export_succesful then return end
+      table.insert(export_queue, {part_predominant_panned_singles, table.pack(n, project_name, path, panned_track_position, hard_pan_volume, original_volumes, part_number)})
     end
     if export_part_predominant_tracks then
-      file_number, export_succesful = part_predominant_mono_singles(n, project_name, path, predominant_volume, original_volumes, part_number, nil, file_number) -- mono predominant
-      if not export_succesful then return end
+      table.insert(export_queue, {part_predominant_mono_singles, table.pack(n, project_name, path, predominant_volume, original_volumes, part_number)})
     end
     if export_part_missing_tracks then
-      file_number, export_succesful = part_missing_singles(n, project_name, path, pans, original_volumes, part_number, file_number)
-      if not export_succesful then return end
+      table.insert(export_queue, {part_missing_singles, table.pack(n, project_name, path, pans, original_volumes, part_number)})
     end
   end
   
   if vp then
     if export_individual_tracks then
-      file_number, export_succesful = part_only_singles(n, project_name, path, original_volumes, {n-1, n-2}, "Rhythm", file_number)
-      if not export_succesful then return end
+      table.insert(export_queue, {part_only_singles, table.pack(n, project_name, path, original_volumes, {n-1, n-2}, "Rhythm")})
     end
     if export_part_panned_tracks then
-      file_number, export_succesful = part_predominant_panned_singles(n, project_name, path, -1, hard_pan_volume, original_volumes, {n-1, n-2}, "Rhythm", file_number)
-      if not export_succesful then return end
+      table.insert(export_queue, {part_predominant_panned_singles, table.pack(n, project_name, path, -1, hard_pan_volume, original_volumes, {n-1, n-2}, "Rhythm")})
     end
     if export_part_predominant_tracks then
-      file_number, export_succesful = part_predominant_mono_singles(n, project_name, path, predominant_volume, original_volumes, {n-1, n-2}, "Rhythm", file_number)
-      if not export_succesful then return end
+      table.insert(export_queue, {part_predominant_mono_singles, table.pack(n, project_name, path, predominant_volume, original_volumes, {n-1, n-2}, "Rhythm")})
+    end
+  end
+
+  for export_number=1, #export_queue, 1 do
+    local export_function = export_queue[export_number][1]
+    local export_args = export_queue[export_number][2]
+    table.insert(export_args, export_number)  
+
+    local export_succesful = export_function(table.unpack(export_args, 1, export_args.n+1))
+    if not export_succesful and cancel_exports_after_failure then
+      reaper.ShowConsoleMsg("Export failed. Cancelling remaining exports.\n")
+      break
     end
   end
 end
 
 
 function main()
-  if hard_pan_volume == nil or predominant_volume == nil or default_pan_width == nil then
-    reaper.ShowConsoleMsg("Invalid numeric values in settings.yaml\n")
-    return
-  end
-
   local n = reaper.GetNumTracks()
   local project_name_ext = reaper.GetProjectName()
   local project_name = string.sub(project_name_ext, 0, string.len(project_name_ext) - 4) -- stripping .rpp file extension
@@ -267,4 +249,3 @@ function main()
 end
 
 main()
-

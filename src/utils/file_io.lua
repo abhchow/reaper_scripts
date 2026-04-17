@@ -18,4 +18,15 @@ function file_io.read_yaml_file(filename)
   return data
 end
 
+function file_io.read_bool(str)
+  if str == "true" then
+    return true
+  elseif str == "false" then
+    return false
+  else
+    -- throw error
+    error("Invalid setting value: " .. str .. ". Please only use true or false.")
+  end
+end
+
 return file_io
