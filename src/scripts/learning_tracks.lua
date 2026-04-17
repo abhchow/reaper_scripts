@@ -24,15 +24,15 @@ function part_only_singles(n, project_name, path, original_volumes, part_number,
   daw_state.set_pans(zeros)
   daw_state.set_volumes(volumes)
   
-  export_track(project_name, track_name, path, file_number)
+  local export_succesful = export_track(project_name, track_name, path, file_number)
 
   daw_state.set_pans(zeros)
   daw_state.set_volumes(original_volumes)
 
   if file_number == nil then
-    return nil
+    return nil, export_succesful
   else
-    return file_number + 1
+    return file_number + 1, export_succesful
   end
 end
 
@@ -84,16 +84,16 @@ function part_predominant_singles(n, project_name, path, pan_position, volume_di
   daw_state.set_pans(pans)
   daw_state.set_volumes(volumes)
 
-  export_track(project_name, track_name, path, file_number)
+  local export_succesful = export_track(project_name, track_name, path, file_number)
 
   local zeros = arr_utils.get_filled_array(n, 0)
   daw_state.set_pans(zeros)
   daw_state.set_volumes(original_volumes)
 
   if file_number == nil then
-    return nil
+    return nil, export_succesful
   else
-    return file_number + 1
+    return file_number + 1, export_succesful
   end
 end
 
@@ -119,16 +119,16 @@ function full_mix_singles(n, project_name, path, pans, original_volumes, part_ex
   daw_state.set_pans(pans)
   daw_state.set_volumes(volumes)
 
-  export_track(project_name, track_name, path, file_number)
+  local export_succesful = export_track(project_name, track_name, path, file_number)
 
   local zeros = arr_utils.get_filled_array(n, 0)
   daw_state.set_pans(zeros)
   daw_state.set_volumes(original_volumes)
 
   if file_number == nil then
-    return nil
+    return nil, export_succesful
   else
-    return file_number + 1
+    return file_number + 1, export_succesful
   end
 end
 
@@ -155,6 +155,8 @@ function export_track(project_name, track_name, path, file_number)
     displayMessage = "Failed to export " .. path .. export_file_name_with_number .. "\n"
   end
   reaper.ShowConsoleMsg(displayMessage .. "\n")
+
+  return retval == 0
 end
 
 
@@ -165,19 +167,27 @@ function export_all(n, project_name, path, export_parts_only, vp, hard_pan_volum
   local pans = pan.positions_to_pans(positions, 0.6) -- overwrite this to customise
   local file_number = 1
 
-  file_number = full_mix_singles(n, project_name, path, pans, original_volumes, arr_utils.get_filled_array(n, 1), "Full mix", file_number)
+  file_number, export_succesful = full_mix_singles(n, project_name, path, pans, original_volumes, arr_utils.get_filled_array(n, 1), "Full mix", file_number)
+  if not export_succesful then return end
 
   for part_number=0, n-1, 1 do
-    file_number = part_only_singles(n, project_name, path, original_volumes, part_number, nil, file_number)
-    file_number = part_predominant_panned_singles(n, project_name, path, -1, hard_pan_volume, original_volumes, part_number, nil, file_number) -- hard panned
-    file_number = part_predominant_mono_singles(n, project_name, path, predominant_volume, original_volumes, part_number, nil, file_number) -- mono predominant
-    file_number = part_missing_singles(n, project_name, path, pans, original_volumes, part_number, file_number)
+    file_number, export_succesful = part_only_singles(n, project_name, path, original_volumes, part_number, nil, file_number)
+    if not export_succesful then return end
+    file_number, export_succesful = part_predominant_panned_singles(n, project_name, path, -1, hard_pan_volume, original_volumes, part_number, nil, file_number) -- hard panned
+    if not export_succesful then return end
+    file_number, export_succesful = part_predominant_mono_singles(n, project_name, path, predominant_volume, original_volumes, part_number, nil, file_number) -- mono predominant
+    if not export_succesful then return end
+    file_number, export_succesful = part_missing_singles(n, project_name, path, pans, original_volumes, part_number, file_number)
+    if not export_succesful then return end
   end
   
   if vp then
-    file_number = part_only_singles(n, project_name, path, original_volumes, {n-1, n-2}, "Rhythm", file_number)
-    file_number = part_predominant_panned_singles(n, project_name, path, -1, hard_pan_volume, original_volumes, {n-1, n-2}, "Rhythm", file_number)
-    file_number = part_predominant_mono_singles(n, project_name, path, predominant_volume, original_volumes, {n-1, n-2}, "Rhythm", file_number)
+    file_number, export_succesful = part_only_singles(n, project_name, path, original_volumes, {n-1, n-2}, "Rhythm", file_number)
+    if not export_succesful then return end
+    file_number, export_succesful = part_predominant_panned_singles(n, project_name, path, -1, hard_pan_volume, original_volumes, {n-1, n-2}, "Rhythm", file_number)
+    if not export_succesful then return end
+    file_number, export_succesful = part_predominant_mono_singles(n, project_name, path, predominant_volume, original_volumes, {n-1, n-2}, "Rhythm", file_number)
+    if not export_succesful then return end
   end
 end
 
