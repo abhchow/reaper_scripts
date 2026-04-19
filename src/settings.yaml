@@ -5,8 +5,8 @@ panned_track_position: -1
 
 export_full_mix: true
 export_individual_tracks: true
-export_part_missing_tracks: true
 export_part_panned_tracks: true
 export_part_predominant_tracks: true
+export_part_missing_tracks: true
 
 cancel_exports_after_failure: true
