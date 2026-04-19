@@ -12,7 +12,6 @@ function arr_utils.print_array(arr, msg)
   reaper.ShowConsoleMsg("\n")
 end
 
-
 function arr_utils.copy_table(table)
   local new_table = {}
   for i = 1, #table do
@@ -20,7 +19,6 @@ function arr_utils.copy_table(table)
   end
   return new_table
 end
-
 
 function arr_utils.has_value(table, val)
   for index, value in ipairs(table) do
@@ -31,7 +29,6 @@ function arr_utils.has_value(table, val)
 
   return false
 end
-
 
 function arr_utils.get_filled_array(n, value)
   local arr = {}
