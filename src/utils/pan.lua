@@ -61,7 +61,6 @@ function pan.get_positions(n, top_track_name, vp, print_console_msg)
   return positions
 end
 
-
 function pan.positions_to_pans(positions, width)
   -- width is a minimum of 0 (mono) and a maximum of 1 (furthest parts are hard panned)
 

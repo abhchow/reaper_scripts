@@ -12,7 +12,6 @@ function daw_state.get_current_pans(n)
   return pans
 end
 
-
 function daw_state.set_pans(pans)
   -- set pans of all parts
   for i = 0, #pans-1 do
@@ -20,7 +19,6 @@ function daw_state.set_pans(pans)
     reaper.SetMediaTrackInfo_Value(track, "D_PAN", pans[i+1])
   end
 end
-
 
 function daw_state.get_current_volumes(n)
   -- read volumes of all parts and store them
@@ -31,7 +29,6 @@ function daw_state.get_current_volumes(n)
   end
   return volumes
 end
-
 
 function daw_state.set_volumes(volumes)
   -- set volumes of all parts
