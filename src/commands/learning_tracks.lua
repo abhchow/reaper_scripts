@@ -112,8 +112,4 @@ function learning_tracks.main()
   daw_state.set_volumes(original_volumes)
 end
 
-learning_tracks.main()
-
--- return learning_tracks
-
-
+return learning_tracks
