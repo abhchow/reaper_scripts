@@ -36,7 +36,7 @@ Importantly, this script was written for _my own_ convenience and contains a num
   - The templates include a metronome and have a synth set up to use as a pitch pipe. Just double click on the synth to open the midi menu and change the note.
 - The hard panned part tracks have the following defaults:
   - The main part is panned hard left and the other parts are panned hard right. You can change this by changing the value of `hard_pan_position` to 1 instead of -1
-  - The main part is 3 times louder than the other parts. You can change thiss by changing the value of `hard_pan_volume`
+  - The main part is 3 times louder than the other parts. You can change thiss by changing the value of `panned_part_volume`
 - The full mix and part missing tracks have a panning arrangement that puts specific parts in specific panning spots. These panning arrangements are only defined for 4, 5, or 6 parts
   - There are separate panning arrangements for SATB and Barbershop parts. If you wish to use the Barbershop panning pattern, name your first track "Tenor"
   - You must name any beatbox/vocal percussion parts "VP". Otherwise your VP will end up panned somewhere else.

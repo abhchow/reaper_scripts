@@ -10,10 +10,10 @@ local learning_tracks = {}
 function learning_tracks.export_all(n, project_name, path, vp, original_volumes)
   local settings = file_io.read_yaml_file(reaper.GetResourcePath().."/Scripts/src/settings.yaml")
   
-  local hard_pan_volume = tonumber(settings.hard_pan_volume)
-  local predominant_volume = tonumber(settings.predominant_volume)
-  local default_pan_width = tonumber(settings.default_pan_width)
-  local panned_track_position = tonumber(settings.panned_track_position)
+  local panned_part_volume = tonumber(settings.panned_part_volume)
+  local predominant_part_volume = tonumber(settings.predominant_part_volume)
+  local full_mix_width = tonumber(settings.full_mix_width)
+  local panned_part_position = tonumber(settings.panned_part_position)
 
   local export_full_mix = file_io.read_bool(settings.export_full_mix)
   local export_individual_tracks = file_io.read_bool(settings.export_individual_tracks)
@@ -25,7 +25,7 @@ function learning_tracks.export_all(n, project_name, path, vp, original_volumes)
   local top_track = reaper.GetTrack(0,0)
   local retval, top_track_name = reaper.GetTrackName(top_track)
   local positions = pan.get_positions(n, top_track_name, vp)
-  local pans = pan.positions_to_pans(positions, default_pan_width)
+  local pans = pan.positions_to_pans(positions, full_mix_width)
   local file_number = 1
 
   local export_queue = {}
@@ -39,10 +39,10 @@ function learning_tracks.export_all(n, project_name, path, vp, original_volumes)
       table.insert(export_queue, {make_track.part_only, table.pack(n, project_name, path, original_volumes, part_number)})
     end
     if export_part_panned_tracks then
-      table.insert(export_queue, {make_track.part_predominant_panned, table.pack(n, project_name, path, panned_track_position, hard_pan_volume, original_volumes, part_number)})
+      table.insert(export_queue, {make_track.part_predominant_panned, table.pack(n, project_name, path, panned_part_position, panned_part_volume, original_volumes, part_number)})
     end
     if export_part_predominant_tracks then
-      table.insert(export_queue, {make_track.part_predominant_mono, table.pack(n, project_name, path, predominant_volume, original_volumes, part_number)})
+      table.insert(export_queue, {make_track.part_predominant_mono, table.pack(n, project_name, path, predominant_part_volume, original_volumes, part_number)})
     end
     if export_part_missing_tracks then
       table.insert(export_queue, {make_track.part_missing, table.pack(n, project_name, path, pans, original_volumes, part_number)})
@@ -54,10 +54,10 @@ function learning_tracks.export_all(n, project_name, path, vp, original_volumes)
       table.insert(export_queue, {make_track.part_only, table.pack(n, project_name, path, original_volumes, {n-1, n-2}, "Rhythm")})
     end
     if export_part_panned_tracks then
-      table.insert(export_queue, {make_track.part_predominant_panned, table.pack(n, project_name, path, -1, hard_pan_volume, original_volumes, {n-1, n-2}, "Rhythm")})
+      table.insert(export_queue, {make_track.part_predominant_panned, table.pack(n, project_name, path, -1, panned_part_volume, original_volumes, {n-1, n-2}, "Rhythm")})
     end
     if export_part_predominant_tracks then
-      table.insert(export_queue, {make_track.part_predominant_mono, table.pack(n, project_name, path, predominant_volume, original_volumes, {n-1, n-2}, "Rhythm")})
+      table.insert(export_queue, {make_track.part_predominant_mono, table.pack(n, project_name, path, predominant_part_volume, original_volumes, {n-1, n-2}, "Rhythm")})
     end
   end
 
