@@ -1,4 +1,5 @@
 local learning_tracks = dofile(reaper.GetResourcePath().."/Scripts/src/commands/learning_tracks.lua")
+local file_io = dofile(reaper.GetResourcePath().."/Scripts/src/utils/file_io.lua")
 
 local lib_path = reaper.GetExtState("Lokasenna_GUI", "lib_path_v2")
 if not lib_path or lib_path == "" then
@@ -17,25 +18,29 @@ GUI.name = "Export Learning Tracks"
 GUI.x, GUI.y, GUI.w, GUI.h = 0, 0, 360, 440
 GUI.anchor, GUI.corner = "mouse", "C"
 
+current_settings = file_io.read_yaml_file(reaper.GetResourcePath().."/Scripts/src/settings.yaml")
+
 function save_settings()
   local options = GUI.Val("Options")
+
   settings = {
-    export_full_mix           = options[1],
-    export_individual_tracks  = options[2],
-    export_panned_tracks      = options[3],
-    export_predominant_tracks = options[4],
-    export_missing_tracks     = options[5],
-    cancel_after_failure      = options[6],
-    panned_part_volume        = GUI.Val("Panned Part Volume"),
-    panned_part_position      = GUI.Val("Panned Part Position"),
-    predominant_part_volume   = GUI.Val("Predominant Part Volume"),
-    full_mix_width            = GUI.Val("Full Mix Width"),
+    {"export_full_mix", options[1]},
+    {"export_individual_tracks", options[2]},
+    {"export_part_panned_tracks", options[3]},
+    {"export_part_predominant_tracks", options[4]},
+    {"export_part_missing_tracks", options[5]},
+    {"cancel_exports_after_failure", options[6]},
+    {"panned_part_volume", GUI.Val("Panned Part Volume")},
+    {"panned_part_position", GUI.Val("Panned Part Position")},
+    {"predominant_part_volume", GUI.Val("Predominant Part Volume")},
+    {"full_mix_width", GUI.Val("Full Mix Width")},
   }
 
-  reaper.ShowConsoleMsg("Settings saved:\n")
-  for key, value in pairs(settings) do
-    reaper.ShowConsoleMsg(key .. ": " .. tostring(value) .. "\n")
-  end
+  file_io.write_yaml_file(
+    reaper.GetResourcePath().."/Scripts/src/settings.yaml",
+    settings,
+    {false, false, false, false, true, true, false, false, false, false}
+  )
 end
 
 GUI.New("Options", "Checklist", {
@@ -45,7 +50,14 @@ GUI.New("Options", "Checklist", {
     w = 256,
     h = 168,
     caption = "Options",
-    optarray = {"Export Full Mix", "Export Individual Parts", "Export Part Panned Tracks", "Export Part Predominant Tracks", "Export Part Missing Tracks", "Cancel Exports After Failure"},
+    optarray = {
+      "Export Full Mix",
+      "Export Individual Parts",
+      "Export Part Panned Tracks",
+      "Export Part Predominant Tracks",
+      "Export Part Missing Tracks",
+      "Cancel Exports After Failure"
+    },
     dir = "v",
     pad = 4,
     font_a = 2,

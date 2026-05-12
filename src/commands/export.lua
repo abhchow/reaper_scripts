@@ -15,7 +15,17 @@ function export.export_track(project_name, track_name, path, file_number)
   end
 
   local retval, renderfilecount, MediaItemStateChunkArray, Filearray
-    = ultraschall.RenderProject(nil, path .. export_file_name_with_number, 0, -1, false, false, false, render_cfg_string, nil)
+    = ultraschall.RenderProject(
+        nil,
+        path .. export_file_name_with_number,
+        0,
+        -1,
+        false,
+        false,
+        false,
+        render_cfg_string,
+        nil
+      )
     
   local displayMessage
   if retval == 0 then

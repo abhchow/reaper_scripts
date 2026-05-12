@@ -18,6 +18,24 @@ function file_io.read_yaml_file(filename)
   return data
 end
 
+function file_io.write_yaml_file(filename, data, linebreaks)
+  local file = io.open(filename, "w")
+  if not file then
+    return false, "Failed to open file for writing: " .. filename
+  end
+
+  for i, pair in ipairs(data) do
+    local key, value = pair[1], pair[2]
+    file:write(key .. ": " .. tostring(value) .. "\n")
+    if linebreaks[i] then
+      file:write("\n")
+    end
+  end
+
+  file:close()
+  return true
+end
+
 function file_io.read_bool(str)
   if str == "true" then
     return true
