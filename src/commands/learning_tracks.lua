@@ -35,17 +35,18 @@ function learning_tracks.export_all(n, project_name, path, vp, original_volumes)
   end
 
   for part_number=0, n-1, 1 do
+    -- nil track_name means the name is read off the track itself
     if export_individual_tracks then
-      table.insert(export_queue, {make_track.part_only, table.pack(n, project_name, path, original_volumes, part_number)})
+      table.insert(export_queue, {make_track.part_only, table.pack(n, project_name, path, original_volumes, part_number, nil)})
     end
     if export_part_panned_tracks then
-      table.insert(export_queue, {make_track.part_predominant_panned, table.pack(n, project_name, path, panned_track_position, hard_pan_volume, original_volumes, part_number)})
+      table.insert(export_queue, {make_track.part_predominant_panned, table.pack(n, project_name, path, panned_track_position, hard_pan_volume, original_volumes, part_number, nil)})
     end
     if export_part_predominant_tracks then
-      table.insert(export_queue, {make_track.part_predominant_mono, table.pack(n, project_name, path, predominant_volume, original_volumes, part_number)})
+      table.insert(export_queue, {make_track.part_predominant_mono, table.pack(n, project_name, path, predominant_volume, original_volumes, part_number, nil)})
     end
     if export_part_missing_tracks then
-      table.insert(export_queue, {make_track.part_missing, table.pack(n, project_name, path, pans, original_volumes, part_number)})
+      table.insert(export_queue, {make_track.part_missing, table.pack(n, project_name, path, pans, original_volumes, part_number, nil)})
     end
   end
   
@@ -64,7 +65,7 @@ function learning_tracks.export_all(n, project_name, path, vp, original_volumes)
   for export_number=1, #export_queue, 1 do
     local export_function = export_queue[export_number][1]
     local export_args = export_queue[export_number][2]
-    table.insert(export_args, export_number)  
+    export_args[export_args.n+1] = export_number -- not table.insert, which skips over nil args
 
     local export_successful = export_function(table.unpack(export_args, 1, export_args.n+1))
     if not export_successful and cancel_exports_after_failure then
