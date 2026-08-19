@@ -1,64 +1,52 @@
 dofile(reaper.GetResourcePath().."/UserPlugins/ultraschall_api.lua")
 local arr_utils = dofile(reaper.GetResourcePath().."/Scripts/src/utils/arr_utils.lua")
+local file_io = dofile(reaper.GetResourcePath().."/Scripts/src/utils/file_io.lua")
 
 local pan = {}
 
-function pan.get_positions(n, top_track_name, vp, print_console_msg)
-  -- Full mix
-    -- Pan in a way that makes sure adjacent parts are separate (except for barbershop)
-    -- For 7 part SATTBB+VP: idk i haven't worked this out
-    -- For 6 part SATBB+VP: Alto, Bass, Tenor/VP, Sop, Bari
-    -- For 5 part SATB+VP: Alto, Bass, VP, Sop, Tenor
-    -- For 5 part SATBB: Alto, Bass, Tenor, Sop, Bari
-    -- For 4 part SATB: Alto, Bass, Sop, Tenor
-    -- For barbershop: Bari, Bass, Lead, Tenor
-    -- For 3 part (assuming SAT): Tenor, Sop, Alto
-    -- For 2 part: Alto, Sop
-  local defaults = {
-    print_console_msg = false
-  }
-  local positions = {}
-  local msg = ""
+local ARRANGEMENTS_PATH = reaper.GetResourcePath().."/Scripts/src/pan_arrangements.yaml"
 
-  if n == 7 then
-    msg = "Panning arrangement: 7 part SATBBB+VP\n\n"
-    positions = {2,4,6,1,3,5,7}
-  elseif n == 6 then
-    msg = "Panning arrangement: 6 part SATBB+VP\n\n"
-    positions = {4,1,3,5,2,3}
-  elseif n == 5 then
-    if vp then
-      msg = "Panning arrangement: 5 part SATB+VP\n\n"
-      positions = {4,1,5,2,3}
-    else
-      msg = "Panning arrangement: 5 part SATBB\n\n"
-      positions = {4,1,3,5,2}
+local function get_arrangement(arrangements, n, top_track_name, vp)
+  -- Most specific key first, falling back to the other voicing so that a part
+  -- count only defined for one of them is still panned
+  local voicing = vp and "_including_vp" or "_voices"
+  local other_voicing = vp and "_voices" or "_including_vp"
+
+  local keys = {}
+  if top_track_name == "Tenor" then --barbershop
+    table.insert(keys, n .. voicing .. "_barbershop")
+    table.insert(keys, n .. other_voicing .. "_barbershop")
+  end
+  table.insert(keys, n .. voicing)
+  table.insert(keys, n .. other_voicing)
+
+  for i = 1, #keys do
+    local arrangement = arrangements[keys[i]]
+    if arrangement and arrangement.positions then
+      return arrangement
     end
-  elseif n == 4 then
-    if top_track_name == "Tenor" then --barbershop
-      msg = "Panning arrangement: 4 part barbershop\n\n"
-      positions = {4,3,1,2}
-    else
-      msg = "Panning arrangement: 4 part SATB\n\n"
-      positions = {3,1,4,2}
-    end
-  elseif n == 3 then
-    msg = "Panning arrangement: 3 part\n\n"
-    positions = {3,1,2}
-  elseif n == 2 then
-    msg = "Panning arrangement: 2 part\n\n"
-    positions = {2,1}
-  else
-    for i = 1, n do
-      positions[i] = 0
-    end
+  end
+
+  return nil
+end
+
+function pan.get_positions(n, top_track_name, vp, print_console_msg)
+  -- Full mix. Arrangements are defined in pan_arrangements.yaml
+  local arrangements, err = file_io.read_yaml_file(ARRANGEMENTS_PATH)
+  if not arrangements then
+    error(err)
+  end
+
+  local arrangement = get_arrangement(arrangements, n, top_track_name, vp)
+  if not arrangement then
+    return arr_utils.get_filled_array(n, 0)
   end
 
   if print_console_msg then
-    reaper.ShowConsoleMsg(msg)
+    reaper.ShowConsoleMsg("Panning arrangement: " .. (arrangement.name or n .. " part") .. "\n\n")
   end
 
-  return positions
+  return file_io.read_number_list(arrangement.positions)
 end
 
 function pan.positions_to_pans(positions, width)

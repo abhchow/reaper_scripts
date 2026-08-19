@@ -1,0 +1,43 @@
+# Pan positions for each arrangement, listed in track order (top track first).
+# Positions are relative slots, not pan values - they get spread across the
+# stereo field by the panning width, so only their order and spacing matters.
+# Panning aims to keep adjacent parts apart from each other (except barbershop).
+#
+# Keys are the number of parts being panned, suffixed with:
+#   _including_vp  the bottom track is voice percussion
+#   _voices        no voice percussion
+# with a further _barbershop suffix for the variant used when the top track is
+# named Tenor. If neither voicing key exists for a part count, the parts are
+# left unpanned (centre).
+
+7_including_vp:
+  name: 7 part SATBBB+VP
+  positions: [2, 4, 6, 1, 3, 5, 7] # idk i haven't worked this out
+
+6_including_vp:
+  name: 6 part SATBB+VP
+  positions: [4, 1, 3, 5, 2, 3] # Alto, Bass, Tenor/VP, Sop, Bari
+
+5_including_vp:
+  name: 5 part SATB+VP
+  positions: [4, 1, 5, 2, 3] # Alto, Bass, VP, Sop, Tenor
+
+5_voices:
+  name: 5 part SATBB
+  positions: [4, 1, 3, 5, 2] # Alto, Bass, Tenor, Sop, Bari
+
+4_voices_barbershop:
+  name: 4 part barbershop
+  positions: [4, 3, 1, 2] # Bari, Bass, Lead, Tenor
+
+4_voices:
+  name: 4 part SATB
+  positions: [3, 1, 4, 2] # Alto, Bass, Sop, Tenor
+
+3_voices:
+  name: 3 part
+  positions: [3, 1, 2] # Tenor, Sop, Alto (assuming SAT)
+
+2_voices:
+  name: 2 part
+  positions: [2, 1] # Alto, Sop
