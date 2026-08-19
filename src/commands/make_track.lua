@@ -5,10 +5,20 @@ local export = dofile(reaper.GetResourcePath().."/Scripts/src/commands/export.lu
 
 local make_track = {}
 
-function make_track.part_only(n, project_name, path, original_volumes, part_number, file_number)
+local function resolve_track_name(part_number, track_name)
+  -- part_number may be a table of parts (eg. Rhythm), in which case a name must be supplied
+  if track_name then
+    return track_name
+  end
+
   local track = reaper.GetTrack(0, part_number)
-  local retval, track_name = reaper.GetTrackName(track)
-  
+  local retval, resolved_name = reaper.GetTrackName(track)
+  return resolved_name
+end
+
+function make_track.part_only(n, project_name, path, original_volumes, part_number, track_name, file_number)
+  track_name = resolve_track_name(part_number, track_name)
+
   local volumes = arr_utils.get_filled_array(n, 0)
   if type(part_number) == "table" then
     for i = 1, #part_number do
@@ -30,16 +40,14 @@ function make_track.part_only(n, project_name, path, original_volumes, part_numb
   return export_successful
 end
 
-function make_track.part_predominant_panned(n, project_name, path, pan_position, volume_diff, original_volumes, part_number, file_number)
-  local track = reaper.GetTrack(0, part_number)
-  local retval, track_name = reaper.GetTrackName(track)
+function make_track.part_predominant_panned(n, project_name, path, pan_position, volume_diff, original_volumes, part_number, track_name, file_number)
+  track_name = resolve_track_name(part_number, track_name)
 
   return make_track.part_predominant(n, project_name, path, pan_position, volume_diff, original_volumes, part_number, track_name .. " Panned", file_number)
 end
 
-function make_track.part_predominant_mono(n, project_name, path, volume_diff, original_volumes, part_number, file_number)
-  local track = reaper.GetTrack(0, part_number)
-  local retval, track_name = reaper.GetTrackName(track)
+function make_track.part_predominant_mono(n, project_name, path, volume_diff, original_volumes, part_number, track_name, file_number)
+  track_name = resolve_track_name(part_number, track_name)
 
   return make_track.part_predominant(n, project_name, path, 0, volume_diff, original_volumes, part_number, track_name .. " Predominant", file_number)
 end
@@ -80,12 +88,17 @@ function make_track.part_predominant(n, project_name, path, pan_position, volume
   return export_successful
 end
 
-function make_track.part_missing(n, project_name, path, pans, original_volumes, part_number, file_number)
+function make_track.part_missing(n, project_name, path, pans, original_volumes, part_number, track_name, file_number)
   local part_exists = arr_utils.get_filled_array(n, 1)
-  part_exists[part_number+1] = 0
+  if type(part_number) == "table" then
+    for i = 1, #part_number do
+      part_exists[part_number[i]+1] = 0
+    end
+  else
+    part_exists[part_number+1] = 0
+  end
 
-  local track = reaper.GetTrack(0, part_number)
-  local retval, track_name = reaper.GetTrackName(track)
+  track_name = resolve_track_name(part_number, track_name)
 
   return make_track.full_mix(n, project_name, path, pans, original_volumes, part_exists, track_name .. " Missing", file_number)
 end
