@@ -1,0 +1,1 @@
+make_track.lua:9: bad argument #2 to 'GetTrack' (number expected, got table)
