@@ -4,8 +4,8 @@
 # Panning aims to keep adjacent parts apart from each other (except barbershop).
 #
 # Keys are the number of parts being panned, suffixed with:
-#   _including_vp  the bottom track is voice percussion
-#   _voices        no voice percussion
+#   _including_vp  the bottom track is vocal percussion
+#   _voices        no vocal percussion
 # with a further _barbershop suffix for the variant used when the top track is
 # named Tenor. If neither voicing key exists for a part count, the parts are
 # left unpanned (centre).
